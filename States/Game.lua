@@ -40,7 +40,6 @@ function GState:init()
   
     local btn = {}
     btn.image = Resources.Image["button"..i]
-    btn.imageDown = Resources.Image["button"..i.."down"]
     
     btn.imageSize = btn.image:getDimensions()
     btn.size = love.window.toPixels(85)
@@ -73,8 +72,6 @@ function GState:enter()
   print("--==Game State Entered==--")
   
   love.graphics.setBackgroundColor(70,70,70, 255)
-  
-  print("Initializing..")
   
   love.physics.setMeter(self.PTM)
   
@@ -134,10 +131,17 @@ function GState:drawPellets()
 end
 
 function GState:drawButtons()
-  love.graphics.setColor(255,255,255,150)
+  
   for id,btn in pairs(self.touchControls) do
+    
+    if btn.down then
+      love.graphics.setColor(170,170,170,200)
+    else
+      love.graphics.setColor(255,255,255,200)
+    end
+    
     love.graphics.draw(
-      btn.down and btn.imageDown or btn.image,
+      btn.image,
       btn.x1,
       btn.y1,
       0,
@@ -145,6 +149,7 @@ function GState:drawButtons()
       btn.scale
     )
   end
+  
 end
 
 function GState:update(dt)
@@ -189,6 +194,16 @@ function GState:keypressed(key,scancode,isrepeat)
   if id then
     if self.kittens[id] then
       self.kittens[id]:turn()
+      self.touchControls[id].down = true
+    end
+  end
+end
+
+function GState:keyreleased(key,scancode,isrepeat)
+  local id = self.keyControls[key]
+  if id then
+    if self.kittens[id] then
+      self.touchControls[id].down = false
     end
   end
 end
