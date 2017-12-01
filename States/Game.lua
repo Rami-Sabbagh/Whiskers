@@ -5,6 +5,7 @@ local ScoreState = require("States.Score")
 
 local Kitten = require("Engine.Kitten")
 local Pellet = require("Engine.Pellet")
+local PowerUp = require("Engine.PowerUp")
 local Resources = require("Engine.Resources")
 
 local SWidth, SHeight = love.graphics.getDimensions()
@@ -21,9 +22,11 @@ GState.kittenColors = {
   {246, 132, 96, 255}  --Orange
 }
 GState.pelletGrowScale = 1.44
-GState.pelletStartTime = 5
-GState.pelletMinTime = 3
-GState.pelletRandRange = 4
+GState.pelletStartTime = 7
+GState.pelletTime = 7
+
+GState.powerupStartTime = 4--15
+GState.powerupTime = 4--10
 
 GState.keyControls = {
   z = 1,
@@ -79,7 +82,7 @@ function GState:enter()
   self.worldWidth = self.kittenScale
   self.worldHeight = SHeight/(SWidth/self.kittenScale)
   
-  self.winSize = self.worldHeight
+  self.winSize = 7.8 * self.PTM--self.worldHeight
   
   self.world:setCallbacks(self.beginContact, self.endContact, self.preSolve, self.postSolve)
   
@@ -88,11 +91,13 @@ function GState:enter()
   
   self.kittens = {}
   self.pellets = {}
+  self.powerups = {}
   self:spawnKittens()
   
   self:playMusic()
   
   self.pelletTimer = self.pelletStartTime
+  self.powerupTimer = self.powerupStartTime
 end
 
 function GState:leave()
@@ -104,6 +109,7 @@ function GState:draw(vx,vy,vw,vh)
   
   self:drawKittens()
   self:drawPellets()
+  self:drawPowerUps()
   
   self.camera:disable()
   
@@ -126,6 +132,12 @@ end
 
 function GState:drawPellets()
   for k,v in ipairs(self.pellets) do
+    if v.draw then v:draw() end
+  end
+end
+
+function GState:drawPowerUps()
+  for k,v in ipairs(self.powerups) do
     if v.draw then v:draw() end
   end
 end
@@ -157,10 +169,11 @@ function GState:update(dt)
   self.world:update(dt)
   self:updateKittens(dt)
   self:updatePellets(dt)
+  self:updatePowerUps(dt)
   
   --Check scales
   for i=1,4 do
-    if self.kittens[i].size > self.winSize then
+    if self.kittens[i].size >= self.winSize then
       for j=1,4 do
         self.kittens[j].imageScale = self.kittens[j].size/self.kittens[j].imageSize
       end
@@ -172,8 +185,15 @@ function GState:update(dt)
   --Pellet Timer
   self.pelletTimer = self.pelletTimer - dt
   if self.pelletTimer <= 0 then
-    self.pelletTimer = self.pelletMinTime + love.math.random()*self.pelletRandRange
+    self.pelletTimer = self.pelletTime
     self:spawnPellet()
+  end
+  
+  --Powerup Timer
+  self.powerupTimer = self.powerupTimer - dt
+  if self.powerupTimer <= 0 then
+    self.powerupTimer = self.powerupTime
+    self:spawnPowerUp()
   end
 end
 
@@ -185,6 +205,12 @@ end
 
 function GState:updatePellets(dt)
   for k,v in ipairs(self.pellets) do
+    if v.update then v:update(dt) end
+  end
+end
+
+function GState:updatePowerUps(dt)
+  for k,v in ipairs(self.powerups) do
     if v.update then v:update(dt) end
   end
 end
@@ -243,8 +269,41 @@ function GState:spawnPellet()
   end
 end
 
+function GState:spawnPowerUp()
+  local size = self.PTM/2
+  local extra = self.PTM*4
+  local pan = self.PTM
+  
+  for i=1,5 do
+    local x, y = love.math.random()*(self.worldWidth-pan*2) + pan, love.math.random()*(self.worldHeight-pan*2) + pan
+    
+    local flag = true
+    
+    if i < 5 then
+      local brad = (size+extra)/2
+      self.world:queryBoundingBox(x-brad,y-brad,x+brad,y+brad, function(fixture)
+        flag = false
+        return false
+      end)
+    end
+    
+    if flag then
+      
+      self:newPowerUp(x,y)
+      return
+      
+    end
+    
+    extra = extra*0.75
+  end
+end
+
 function GState:newPellet(x,y)
   table.insert(self.pellets, Pellet(self,x,y))
+end
+
+function GState:newPowerUp(x,y,id)
+  table.insert(self.powerups, PowerUp(self,x,y,id))
 end
 
 function GState:playMusic()
