@@ -22,8 +22,8 @@ GState.kittenColors = {
   {246, 132, 96, 255}  --Orange
 }
 GState.pelletGrowScale = 1.44
-GState.pelletStartTime = 7
-GState.pelletTime = 7
+GState.pelletStartTime = 15
+GState.pelletTime = 10
 
 GState.powerupStartTime = 4--15
 GState.powerupTime = 4--10
