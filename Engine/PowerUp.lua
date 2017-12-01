@@ -1,6 +1,7 @@
 local class = require("Libraries.middleclass")
 
 local Resources = require("Engine.Resources")
+local Kitten = require("Engine.Kitten")
 
 local PowerUp = class("PowerUp")
 
@@ -37,6 +38,8 @@ function PowerUp:initialize( game, x, y, id )
 end
 
 function PowerUp:draw()
+  if self.dead then return end
+  
   local bx, by = self.body:getPosition()
   local rot = self.body:getAngle()
   
@@ -45,7 +48,19 @@ function PowerUp:draw()
 end
 
 function PowerUp:update(dt)
-  
+  if self.dead then
+    
+    if self.toApply then
+      
+      --Apply the powerup
+      
+      self.toApply = nil
+      
+    end
+    
+    return
+    
+  end
   
   local bx, by = self.body:getPosition()
   if bx < 0 then
@@ -60,6 +75,23 @@ function PowerUp:update(dt)
     self.body:setY(0)
   end
   
+end
+
+function PowerUp:destroy()
+  self.body:destroy()
+  self.dead = true
+end
+
+function PowerUp:preSolve(myFixture, otherFixture, contact)
+  local other = otherFixture:getBody():getUserData()
+  
+  if type(other) ~= "table" then return end
+  
+  if other:isInstanceOf(Kitten) then
+    contact:setEnabled(false)
+    self:destroy()
+    self.toApply = other
+  end
 end
 
 return PowerUp
