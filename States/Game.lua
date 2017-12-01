@@ -107,9 +107,9 @@ end
 function GState:draw(vx,vy,vw,vh)
   self.camera:enable()
   
-  self:drawKittens()
   self:drawPellets()
   self:drawPowerUps()
+  self:drawKittens()
   
   self.camera:disable()
   
