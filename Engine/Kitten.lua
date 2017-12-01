@@ -138,7 +138,7 @@ function Kitten:turn()
   
   rot = (math.floor(quarts+0.5) + 1) * math.pi * 0.5
   
-  local traceStartColor = {unpack(self.color)}; traceStartColor[4] = 200
+  local traceStartColor = {unpack(self.color)}; traceStartColor[4] = 255
   local traceEndColor = {unpack(self.color)}; traceEndColor[4] = 0
   table.insert(self.traces,{ cx=bx,cy=by,rot=rot,scale=self.size/self.traceSize,color=traceStartColor })
   table.insert(self.traceTweens,tween.new(self.traceDuration,self.traces[#self.traces],{ color=traceEndColor },"outQuad"))
