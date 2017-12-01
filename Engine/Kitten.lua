@@ -57,7 +57,7 @@ end
 function Kitten:setSize(size, animate)
   local oldsize = self.size
   
-  self.size = size
+  self.size = math.min(size, self.game.winSize)
   
   self.fixture:destroy()
   self.shape = love.physics.newRectangleShape(self.size, self.size)
@@ -147,8 +147,8 @@ function Kitten:turn()
   self.body:setAngle(rot)
   self.body:setAngularVelocity(0)
   
-  local ix = math.cos(rot) * self.speed
-  local iy = math.sin(rot) * self.speed
+  local ix = (math.cos(rot) * self.speed)/(self.size/self.game.PTM)
+  local iy = (math.sin(rot) * self.speed)/(self.size/self.game.PTM)
   self.body:setLinearVelocity(ix,iy)
 end
 
@@ -156,8 +156,8 @@ function Kitten:impulse()
   local bx, by = self.body:getPosition()
   local rot = self.body:getAngle()
   
-  local ix = math.cos(rot) * self.speed
-  local iy = math.sin(rot) * self.speed
+  local ix = (math.cos(rot) * self.speed)/(self.size/self.game.PTM)
+  local iy = (math.sin(rot) * self.speed)/(self.size/self.game.PTM)
   self.body:setLinearVelocity(ix,iy)
 end
 
