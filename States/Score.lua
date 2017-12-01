@@ -20,9 +20,22 @@ function SState:init()
   self.rematchWidth, self.rematchHeight = self.rematchImage:getDimensions()
   self.homeWidth, self.homeHeight = self.homeImage:getDimensions()
   
-  self.rematchX = SWidth/12
+  self.homeScale = self.rematchHeight/self.homeHeight --This is the home button scale required to match the rematch one.
   
-  self.homeScale = self.rematchHeight/self.homeHeight
+  self.rematchScale = ((SWidth/12)*10)/(self.rematchWidth + 17 + self.homeWidth*self.homeScale)
+  
+  self.rematchX, self.rematchY = SWidth/12, SHeight-self.rematchHeight*self.rematchScale
+  self.homeX, self.homeY = self.rematchX+(self.rematchWidth+17)*self.rematchScale, SHeight-self.homeHeight*self.rematchScale*self.homeScale
+  
+  self.rematchX = self.rematchX + self.rematchWidth*self.rematchScale*0.5
+  self.rematchY = self.rematchY + self.rematchHeight*self.rematchScale*0.5
+  
+  self.homeX = self.homeX + self.homeWidth*self.rematchScale*self.homeScale*0.5
+  self.homeY = self.homeY + self.homeHeight*self.rematchScale*self.homeScale*0.5
+  
+  self.rematchOX, self.rematchOY = self.rematchWidth/2, self.rematchHeight/2
+  self.homeOX, self.homeOY = self.homeWidth/2, self.homeHeight/2
+  
   
   self.biggestSize = (SHeight/5)*3
   self.firstX = SHeight/5 + self.biggestSize/2
@@ -73,6 +86,31 @@ function SState:leave()
 end
 
 function SState:draw()
+  self:drawKittens()
+  self:drawButtons()
+end
+
+function SState:drawButtons()
+  love.graphics.setColor(255,255,255,255)
+  love.graphics.draw(self.rematchImage,
+    self.rematchX,
+    self.rematchY,
+    0,
+    self.rematchScale,
+    self.rematchScale,
+    self.rematchOX,
+    self.rematchOY)
+  love.graphics.draw(self.homeImage,
+    self.homeX,
+    self.homeY,
+    0,
+    self.rematchScale*self.homeScale,
+    self.rematchScale*self.homeScale,
+    self.homeOX,
+    self.homeOY)
+end
+
+function SState:drawKittens()
   for i=1,4 do
     local kitten = self.kittens[i]
     local pos = self.positions[i]
@@ -102,8 +140,7 @@ function SState:draw()
       kitten.imageScale*self.scale,
       kitten.imageScale*self.scale,
       kitten.moustachCenterX,
-      0
-      )
+      0)
   end
 end
 
