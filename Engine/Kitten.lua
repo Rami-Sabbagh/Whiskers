@@ -5,15 +5,16 @@ local Resources = require("Engine.Resources")
 local Kitten = class("Kitten")
 
 Kitten.density = 0.7
-Kitten.traces = {}
-Kitten.traceTweens = {}
-Kitten.traceDuration = 2
+Kitten.traceDuration = 0.5
 Kitten.scaleDuration = 0.5
 
 function Kitten:initialize( game, id )
   
   self.game = game
   self.id = id
+  
+  self.traces = {}
+  self.traceTweens = {}
   
   self.size = self.game.PTM
   self.speed = (self.size*self.game.PTM)/4
@@ -137,7 +138,7 @@ function Kitten:turn()
   
   rot = (math.floor(quarts+0.5) + 1) * math.pi * 0.5
   
-  local traceStartColor = {unpack(self.color)}; traceStartColor[4] = 120
+  local traceStartColor = {unpack(self.color)}; traceStartColor[4] = 200
   local traceEndColor = {unpack(self.color)}; traceEndColor[4] = 0
   table.insert(self.traces,{ cx=bx,cy=by,rot=rot,scale=self.size/self.traceSize,color=traceStartColor })
   table.insert(self.traceTweens,tween.new(self.traceDuration,self.traces[#self.traces],{ color=traceEndColor },"outQuad"))
