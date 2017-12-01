@@ -10,9 +10,24 @@ SState.duration = 0.3
 
 function SState:init()
   
+  --The screen width is devided 12 section, 1 for each side
+  
   self.game = require("States.Game")
+  
+  self.rematchImage = Resources.Image["rematchButton"] --17 Pixel Bottom Padding
+  self.homeImage = Resources.Image["homeButton"]
+  
+  self.rematchWidth, self.rematchHeight = self.rematchImage:getDimensions()
+  self.homeWidth, self.homeHeight = self.homeImage:getDimensions()
+  
+  self.rematchX = SWidth/12
+  
+  self.homeScale = self.rematchHeight/self.homeHeight
+  
   self.biggestSize = (SHeight/5)*3
   self.firstX = SHeight/5 + self.biggestSize/2
+  
+  
   
 end
 
