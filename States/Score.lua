@@ -7,6 +7,12 @@ local SWidth, SHeight = love.graphics.getDimensions()
 local SState = {}
 
 SState.duration = 0.3
+SState.kittenNames = {
+  "clarenceWins",
+  "helenWins",
+  "johnrWins",
+  "margieWins"
+}
 
 function SState:init()
   
@@ -36,16 +42,31 @@ function SState:init()
   self.rematchOX, self.rematchOY = self.rematchWidth/2, self.rematchHeight/2
   self.homeOX, self.homeOY = self.homeWidth/2, self.homeHeight/2
   
+  --WinnerName Height 93 + 17 padding
+  self.winnerX, self.winnerY = SWidth/2, 17*self.rematchScale
   
-  self.biggestSize = (SHeight/5)*3
-  self.firstX = SHeight/5 + self.biggestSize/2
-  
-  
+  self.biggestSize = (SHeight - self.rematchHeight*self.rematchScale*2) - 100*self.rematchScale
+  self.firstX = self.rematchHeight*self.rematchScale + self.biggestSize/2
   
 end
 
 function SState:enter()
   
+  self:calculateKittens()
+  
+  --Calculate Winner Variables
+  self.winnerImage = Resources.Image[self.kittenNames[self.kittens[1].id]]
+  self.winnerColor = self.game.kittenColors[self.kittens[1].id]
+  
+  self.winnerWidth, self.winnerHeight = self.winnerImage:getDimensions()
+  
+  self.winnerScale = (self.winnerHeight/self.rematchHeight) * self.rematchScale
+  
+  self.winnerOX = self.winnerWidth/2
+  
+end
+
+function SState:calculateKittens()
   self.kittens = {}
   self.positions = {}
   self.endPositions = {}
@@ -88,6 +109,19 @@ end
 function SState:draw()
   self:drawKittens()
   self:drawButtons()
+  self:drawWinnerName()
+end
+
+function SState:drawWinnerName()
+  love.graphics.setColor(self.winnerColor)
+  love.graphics.draw(self.winnerImage,
+    self.winnerX,
+    self.winnerY,
+    0,
+    self.winnerScale,
+    self.winnerScale,
+    self.winnerOX,
+    0)
 end
 
 function SState:drawButtons()
