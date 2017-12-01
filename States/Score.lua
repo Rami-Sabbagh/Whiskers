@@ -1,4 +1,5 @@
 local tween = require("Libraries.tween")
+local GameState = require("Libraries.gamestate")
 
 local Resources = require("Engine.Resources")
 
@@ -33,6 +34,10 @@ function SState:init()
   self.rematchX, self.rematchY = SWidth/12, SHeight-self.rematchHeight*self.rematchScale
   self.homeX, self.homeY = self.rematchX+(self.rematchWidth+17)*self.rematchScale, SHeight-self.homeHeight*self.rematchScale*self.homeScale
   
+  self.rematchX1, self.rematchY1 = self.rematchX, self.rematchY
+  self.rematchX2 = self.rematchX1 + self.rematchWidth*self.rematchScale
+  self.rematchY2 = self.rematchY1 + (self.rematchHeight-17)*self.rematchScale
+  
   self.rematchX = self.rematchX + self.rematchWidth*self.rematchScale*0.5
   self.rematchY = self.rematchY + self.rematchHeight*self.rematchScale*0.5
   
@@ -41,6 +46,10 @@ function SState:init()
   
   self.rematchOX, self.rematchOY = self.rematchWidth/2, self.rematchHeight/2
   self.homeOX, self.homeOY = self.homeWidth/2, self.homeHeight/2
+  
+  self.rematchScaleDown = self.rematchScale*0.95
+  self.rematchDown = false
+  self.rematchTID = nil
   
   --WinnerName Height 93 + 17 padding
   self.winnerX, self.winnerY = SWidth/2, 17*self.rematchScale
@@ -106,6 +115,10 @@ function SState:leave()
   
 end
 
+function SState:rematch()
+  GameState.switch(self.game)
+end
+
 function SState:draw()
   self:drawKittens()
   self:drawButtons()
@@ -130,8 +143,8 @@ function SState:drawButtons()
     self.rematchX,
     self.rematchY,
     0,
-    self.rematchScale,
-    self.rematchScale,
+    self.rematchDown and self.rematchScaleDown or self.rematchScale,
+    self.rematchDown and self.rematchScaleDown or self.rematchScale,
     self.rematchOX,
     self.rematchOY)
   love.graphics.draw(self.homeImage,
@@ -182,6 +195,48 @@ function SState:update(dt)
   for i=1, 4 do
     if not self.tweens[i]:update(dt) then break end
   end
+end
+
+function SState:touchpressed(id,x,y,dx,dy,pressure)
+  
+  if not self.rematchTID then
+    
+    if self.rematchX1 <= x and self.rematchY1 <= y and self.rematchX2 >= x and self.rematchY2 >= y then
+      self.rematchDown = true
+      self.rematchTID = id
+    end
+    
+  end
+  
+end
+
+function SState:touchmoved(id,x,y,dx,dy,pressure)
+  
+  if self.rematchTID and self.rematchTID == id then
+    
+    if self.rematchX1 <= x and self.rematchY1 <= y and self.rematchX2 >= x and self.rematchY2 >= y then
+      self.rematchDown = true
+    else
+      self.rematchDown = false
+    end
+    
+  end
+  
+end
+
+function SState:touchreleased(id,x,y,dx,dy,pressure)
+  
+  if self.rematchTID and self.rematchTID == id then
+    
+    if self.rematchX1 <= x and self.rematchY1 <= y and self.rematchX2 >= x and self.rematchY2 >= y then
+      Resources:playMeow()
+      self:rematch()
+    end
+    
+    self.rematchDown = false
+    self.rematchTID = nil
+  end
+  
 end
 
 return SState
