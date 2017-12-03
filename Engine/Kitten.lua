@@ -58,6 +58,7 @@ function Kitten:setSize(size, animate)
   local oldsize = self.size
   
   self.size = math.min(size, self.game.winSize)
+  self.size = math.max(self.size, self.game.PTM)
   
   self.fixture:destroy()
   self.shape = love.physics.newRectangleShape(self.size, self.size)
@@ -76,6 +77,10 @@ end
 
 function Kitten:growByScale(scale)
   self:setSize(self.size * scale, true)
+end
+
+function Kitten:shrinkByScale(scale)
+  self:setSize(self.size / scale, true)
 end
 
 function Kitten:drawMoustach()
@@ -194,6 +199,16 @@ function Kitten:update(dt)
     self.body:setY(0)
   end
   
+end
+
+function Kitten:gotLightning()
+  for id, kitten in ipairs(self.game.kittens) do
+    if kitten == self then
+      kitten:growByScale(self.game.lightningGrowScale)
+    else
+      kitten:shrinkByScale(self.game.lightningShrinkScale)
+    end
+  end
 end
 
 return Kitten

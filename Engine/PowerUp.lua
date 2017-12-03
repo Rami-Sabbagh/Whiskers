@@ -1,4 +1,5 @@
 local class = require("Libraries.middleclass")
+local tween = require("Libraries.tween")
 
 local Resources = require("Engine.Resources")
 local Kitten = require("Engine.Kitten")
@@ -12,6 +13,15 @@ PowerUp.types = {
   "star"
 }
 
+PowerUp.typesCalls = {
+  "gotBomb",
+  "gotBullet",
+  "gotLightning",
+  "gotStar"
+}
+
+PowerUp.scaleDuration = 0.5
+
 function PowerUp:initialize( game, x, y, id )
   
   self.game = game
@@ -22,11 +32,13 @@ function PowerUp:initialize( game, x, y, id )
   self.id = id or love.math.random(1,#self.types)
   self.name = self.types[self.id]
   
-  self.size = self.game.PTM/2
+  self.size = self.game.PTM*0.60
   
   self.image = Resources.Image[self.name.."Icon"]
   self.imageWidth, self.imageHeight = self.image:getDimensions()
   self.imageScale = self.size/self.imageWidth
+  self.imageScale1 = self.imageScale
+  self.imageScale2 = (self.game.PTM*0.68)/self.imageWidth
   
   self.imageOX, self.imageOY = self.imageWidth/2, self.imageHeight/2
   
@@ -35,6 +47,9 @@ function PowerUp:initialize( game, x, y, id )
   self.fixture = love.physics.newFixture(self.body, self.shape)
   
   self.body:setUserData(self)
+  
+  self.tween1 = tween.new(self.scaleDuration, self, {imageScale = self.imageScale2})
+  self.tween2 = tween.new(self.scaleDuration, self, {imageScale = self.imageScale1})
 end
 
 function PowerUp:draw()
@@ -53,6 +68,9 @@ function PowerUp:update(dt)
     if self.toApply then
       
       --Apply the powerup
+      if self.toApply[self.typesCalls[self.id]] then
+        self.toApply[self.typesCalls[self.id]](self.toApply)
+      end
       
       self.toApply = nil
       
@@ -73,6 +91,18 @@ function PowerUp:update(dt)
     self.body:setY(self.worldHeight)
   elseif by > self.worldHeight then
     self.body:setY(0)
+  end
+  
+  if self.tweenFlag then
+    self.tweenFlag = not self.tween2:update(dt)
+    if not self.tweenFlag then
+      self.tween1:set(0)
+    end
+  else
+    self.tweenFlag = self.tween1:update(dt)
+    if self.tweenFlag then
+      self.tween2:set(0)
+    end
   end
   
 end
