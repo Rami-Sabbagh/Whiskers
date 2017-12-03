@@ -52,6 +52,7 @@ function Kitten:initialize( game, id )
   
   self.fixture:setFriction(0)
   self.fixture:setRestitution(0)
+  self.fixture:setGroupIndex(-self.id)
 end
 
 function Kitten:setSize(size, animate)
@@ -66,6 +67,7 @@ function Kitten:setSize(size, animate)
   
   self.fixture:setFriction(0)
   self.fixture:setRestitution(0)
+  self.fixture:setGroupIndex(-self.id)
   
   local ix, iy = self.body:getLinearVelocity()
   self.body:setLinearVelocity(ix*(oldsize/self.size), iy*(oldsize/self.size))
