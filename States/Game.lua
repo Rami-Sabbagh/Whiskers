@@ -28,6 +28,9 @@ GState.pelletTime = 10
 GState.powerupStartTime = 4--15
 GState.powerupTime = 4--10
 
+GState.lightningShrinkScale = GState.pelletGrowScale
+GState.lightningGrowScale = 1.68
+
 GState.keyControls = {
   z = 1,
   x = 2,
@@ -241,8 +244,8 @@ function GState:spawnKittens()
 end
 
 function GState:spawnPellet()
-  local size = self.PTM/5
-  local extra = self.PTM*2
+  local size = self.PTM/4
+  local extra = self.PTM*4
   local pan = self.PTM
   
   for i=1,5 do
@@ -270,7 +273,7 @@ function GState:spawnPellet()
 end
 
 function GState:spawnPowerUp()
-  local size = self.PTM/2
+  local size = self.PTM*0.60
   local extra = self.PTM*4
   local pan = self.PTM
   
