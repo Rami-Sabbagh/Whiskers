@@ -10,7 +10,7 @@ function Pellet:initialize( game, x, y )
   
   self.game = game
   
-  self.size = self.game.PTM/5
+  self.size = self.game.PTM/4
   
   self.world = self.game.world
   self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight
