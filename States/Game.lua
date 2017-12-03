@@ -25,8 +25,8 @@ GState.pelletGrowScale = 1.44
 GState.pelletStartTime = 15
 GState.pelletTime = 10
 
-GState.powerupStartTime = 4--15
-GState.powerupTime = 4--10
+GState.powerupStartTime = 15
+GState.powerupTime = 10
 
 GState.lightningShrinkScale = GState.pelletGrowScale
 GState.lightningGrowScale = 1.68
