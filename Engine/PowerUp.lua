@@ -7,17 +7,17 @@ local Kitten = require("Engine.Kitten")
 local PowerUp = class("PowerUp")
 
 PowerUp.types = {
-  "bomb",
+  --"bomb",
   "bullet",
   "lightning",
-  "star"
+  --"star"
 }
 
 PowerUp.typesCalls = {
-  "gotBomb",
-  "gotBullet",
+  --"gotBomb",
+  "gotTurret",
   "gotLightning",
-  "gotStar"
+  --"gotStar"
 }
 
 PowerUp.scaleDuration = 0.5
