@@ -60,6 +60,8 @@ function SState:init()
 end
 
 function SState:enter()
+
+  love.audio.stop()
   
   self:calculateKittens()
   
