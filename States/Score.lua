@@ -239,4 +239,19 @@ function SState:touchreleased(id,x,y,dx,dy,pressure)
   
 end
 
+function SState:mousepressed(x,y,button,istouch)
+  if istouch then return end
+  self:touchpressed(0,x,y,0,0,1)
+end
+
+function SState:mousemoved(x,y,dx,dy,istouch)
+  if istouch then return end
+  self:touchmoved(0,x,y,dx,dy,1)
+end
+
+function SState:mousereleased(x,y,button,istouch)
+  if istouch then return end
+  self:touchreleased(0,x,y,0,0,1)
+end
+
 return SState
