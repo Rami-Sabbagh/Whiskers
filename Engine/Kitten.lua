@@ -211,6 +211,8 @@ function Kitten:gotLightning()
       kitten:shrinkByScale(self.game.lightningShrinkScale)
     end
   end
+  
+  self.game:showLightning()
 end
 
 return Kitten

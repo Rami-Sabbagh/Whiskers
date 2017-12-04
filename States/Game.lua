@@ -1,5 +1,6 @@
 local Gamera = require("Libraries.gamera")
 local GameState = require("Libraries.gamestate")
+local tween = require("Libraries.tween")
 
 local ScoreState = require("States.Score")
 
@@ -25,11 +26,15 @@ GState.pelletGrowScale = 1.44
 GState.pelletStartTime = 15
 GState.pelletTime = 10
 
-GState.powerupStartTime = 15
-GState.powerupTime = 10
+GState.powerupStartTime = 4--15
+GState.powerupTime = 4--10
+GState.powerupTestID = 3--nil
 
 GState.lightningShrinkScale = GState.pelletGrowScale
 GState.lightningGrowScale = 1.68
+
+GState.lightningDuration = 0.45
+GState.lightningColorSpeed = 16
 
 GState.keyControls = {
   z = 1,
@@ -71,6 +76,19 @@ function GState:init()
     self.touchControls[i] = btn
   end
   
+  self.lightningImage = Resources.Image["bigWhiteLightning"]
+  self.lightningWidth, self.lightningHeight = self.lightningImage:getDimensions()
+  
+  self.lightningSmallScale = (SWidth/6)/self.lightningWidth
+  self.lightningBigScale = (SWidth/4)/self.lightningWidth
+  
+  self.lightningOX = self.lightningWidth/2
+  self.lightningX = SWidth/2
+  
+  self.lightningStartY = -SWidth/6
+  self.lightningMidY = SHeight/2 - SWidth/8
+  self.lightningEndY = SHeight
+  
 end
 
 function GState:enter()
@@ -101,10 +119,30 @@ function GState:enter()
   
   self.pelletTimer = self.pelletStartTime
   self.powerupTimer = self.powerupStartTime
+  
+  self.lightningTween, self.lightningTween2 = nil, nil
 end
 
 function GState:leave()
   
+end
+
+function GState:showLightning()
+  self.lightningScale = self.lightningSmallScale
+  
+  self.lightningY = self.lightningStartY
+  
+  self.lightningColor = 1
+  
+  self.lightningTween = tween.new(self.lightningDuration/2,self,{
+    lightningY = self.lightningMidY,
+    lightningScale = self.lightningBigScale
+  },"outExpo")
+  
+  self.lightningTween2 = tween.new(self.lightningDuration/2,self,{
+    lightningY = self.lightningEndY,
+    lightningScale = self.lightningSmallScale
+  },"inExpo")
 end
 
 function GState:draw(vx,vy,vw,vh)
@@ -115,6 +153,8 @@ function GState:draw(vx,vy,vw,vh)
   self:drawKittens()
   
   self.camera:disable()
+  
+  self:drawLightning()
   
   self:drawButtons()
 end
@@ -145,6 +185,26 @@ function GState:drawPowerUps()
   end
 end
 
+function GState:drawLightning()
+  if not self.lightningTween then return end
+  
+  local colorid = math.floor(self.lightningColor % #self.kittenColors) +1
+  local r, g, b = unpack(self.kittenColors[colorid])
+  
+  love.graphics.setColor(r, g, b, 125)
+  love.graphics.rectangle("fill", 0,0, SWidth, SHeight)
+  
+  love.graphics.setColor(255,255,255,255)
+  love.graphics.draw(self.lightningImage,
+    self.lightningX,
+    self.lightningY,
+    0,
+    self.lightningScale,
+    self.lightningScale,
+    self.lightningOX
+  )
+end
+
 function GState:drawButtons()
   
   for id,btn in pairs(self.touchControls) do
@@ -173,6 +233,7 @@ function GState:update(dt)
   self:updateKittens(dt)
   self:updatePellets(dt)
   self:updatePowerUps(dt)
+  self:updateLightning(dt)
   
   --Check scales
   for i=1,4 do
@@ -216,6 +277,16 @@ function GState:updatePowerUps(dt)
   for k,v in ipairs(self.powerups) do
     if v.update then v:update(dt) end
   end
+end
+
+function GState:updateLightning(dt)
+  if not self.lightningTween then return end
+  local done = self.lightningTween:update(dt)
+  if done then
+    self.lightningTween = self.lightningTween2
+    self.lightningTween2 = nil
+  end
+  self.lightningColor = self.lightningColor+self.lightningColorSpeed*dt
 end
 
 function GState:keypressed(key,scancode,isrepeat)
@@ -292,7 +363,7 @@ function GState:spawnPowerUp()
     
     if flag then
       
-      self:newPowerUp(x,y)
+      self:newPowerUp(x,y,self.powerupTestID)
       return
       
     end
