@@ -2,11 +2,16 @@ local class = require("Libraries.middleclass")
 local tween = require("Libraries.tween")
 local Resources = require("Engine.Resources")
 
+local Bullet = require("Engine.Bullet")
+
 local Kitten = class("Kitten")
 
 Kitten.density = 0.7
 Kitten.traceDuration = 0.5
 Kitten.scaleDuration = 0.5
+Kitten.turretDuration = 7
+
+Kitten.turretSFX = Resources.SFX["sewingmachine"]
 
 function Kitten:initialize( game, id )
   
@@ -15,6 +20,8 @@ function Kitten:initialize( game, id )
   
   self.traces = {}
   self.traceTweens = {}
+  
+  self.bullets = {}
   
   self.size = self.game.PTM
   self.speed = (self.size*self.game.PTM)/4
@@ -102,6 +109,12 @@ function Kitten:drawMoustach()
   love.graphics.pop()
 end
 
+function Kitten:drawBullets()
+  for k, bullet in ipairs(self.bullets) do
+    bullet:draw()
+  end
+end
+
 function Kitten:drawBody()
   local dx, dy = self.body:getPosition()
   local dr = self.body:getAngle()
@@ -119,6 +132,8 @@ function Kitten:drawBody()
   love.graphics.draw(self.image,0,0, 0, 1,1, self.imageSize/2, self.imageSize/2)
   
   love.graphics.pop()
+  
+  self:drawBullets()
 end
 
 function Kitten:drawTraces()
@@ -168,7 +183,34 @@ function Kitten:impulse()
   self.body:setLinearVelocity(ix,iy)
 end
 
+function Kitten:updateBullets(dt)
+  for k, bullet in ipairs(self.bullets) do
+    bullet:update(dt)
+  end
+end
+
 function Kitten:update(dt)
+  
+  --Turret update
+  self:updateBullets()
+  if self.hasTurret then
+    if self.turretSFX:isStopped() then
+      self.turretSFX:play()
+    end
+    
+    self.bulletTimer = self.bulletTimer - dt
+    if self.bulletTimer <= 0 then
+      self.bulletTimer = (self.size/self.game.PTM)/10
+      
+      table.insert(self.bullets, Bullet(self))
+    end
+    
+    self.hasTurret = self.hasTurret - dt
+    if self.hasTurret <= 0 then
+      self.turretSFX:stop()
+      self.hasTurret = false
+    end
+  end
   
   --Traces Update
   local removedTraces = 0
@@ -213,6 +255,16 @@ function Kitten:gotLightning()
   end
   
   self.game:showLightning()
+  Resources.SFX["sirenWhistle"]:stop()
+  Resources.SFX["sirenWhistle"]:play()
+end
+
+function Kitten:gotTurret()
+  self.hasTurret = self.turretDuration
+  self.bulletTimer = (self.size/self.game.PTM)/10
+  
+  self.turretSFX:stop()
+  self.turretSFX:play()
 end
 
 return Kitten

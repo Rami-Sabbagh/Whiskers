@@ -26,12 +26,14 @@ GState.pelletGrowScale = 1.44
 GState.pelletStartTime = 15
 GState.pelletTime = 10
 
-GState.powerupStartTime = 4--15
-GState.powerupTime = 4--10
-GState.powerupTestID = 3--nil
+GState.powerupStartTime = 15
+GState.powerupTime = 10
+GState.powerupTestID = nil
 
 GState.lightningShrinkScale = GState.pelletGrowScale
 GState.lightningGrowScale = 1.68
+
+GState.bulletScale = 1.03
 
 GState.lightningDuration = 0.45
 GState.lightningColorSpeed = 16
@@ -94,6 +96,8 @@ end
 function GState:enter()
   
   print("--==Game State Entered==--")
+  
+  love.audio.stop()
   
   love.graphics.setBackgroundColor(70,70,70, 255)
   
