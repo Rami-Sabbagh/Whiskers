@@ -58,7 +58,7 @@ function PowerUp:draw()
   local bx, by = self.body:getPosition()
   local rot = self.body:getAngle()
   
-  love.graphics.setColor(255,255,255,255)
+  love.graphics.setColor(1,1,1,1)
   love.graphics.draw(self.image, bx,by, rot, self.imageScale,self.imageScale, self.imageOX,self.imageOY)
 end
 

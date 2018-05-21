@@ -140,7 +140,7 @@ function SState:drawWinnerName()
 end
 
 function SState:drawButtons()
-  love.graphics.setColor(255,255,255,255)
+  love.graphics.setColor(1,1,1,1)
   love.graphics.draw(self.rematchImage,
     self.rematchX,
     self.rematchY,
@@ -181,7 +181,7 @@ function SState:drawKittens()
       kitten.imageSize/2,
       kitten.imageSize/2)
     
-    love.graphics.setColor(255,255,255,255)
+    love.graphics.setColor(1,1,1,1)
     love.graphics.draw(kitten.moustachImage,
       pos[1] + kitten.moustachX*kitten.imageScale*self.scale,
       pos[2] + kitten.moustachY*kitten.imageScale*self.scale,

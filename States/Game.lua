@@ -16,11 +16,11 @@ local GState = {}
 GState.PTM = 32
 GState.kittenScale = 20*GState.PTM
 GState.kittenColors = {
-  {96, 246, 133, 255}, --Green
-  {246, 207, 95, 255}, --Yellow
-  {95, 134, 246, 255}, --Blue
-  {246, 95, 209, 255}, --Pink
-  {246, 132, 96, 255}  --Orange
+  {96/255 , 246/255, 133/255, 1}, --Green
+  {246/255, 207/255, 95/255 , 1}, --Yellow
+  {95/255 , 134/255, 246/255, 1}, --Blue
+  {246/255, 95/255 , 209/255, 1}, --Pink
+  {246/255, 132/255, 96/255 , 1}  --Orange
 }
 GState.pelletGrowScale = 1.44
 GState.pelletStartTime = 15
@@ -55,7 +55,7 @@ function GState:init()
     btn.image = Resources.Image["button"..i]
     
     btn.imageSize = btn.image:getDimensions()
-    btn.size = love.window.toPixels(85)
+    btn.size = 85
     btn.scale = btn.size / btn.imageSize
     
     btn.down = false
@@ -99,7 +99,7 @@ function GState:enter()
   
   love.audio.stop()
   
-  love.graphics.setBackgroundColor(70,70,70, 255)
+  love.graphics.setBackgroundColor(70/255,70/255,70/255, 1)
   
   love.physics.setMeter(self.PTM)
   
@@ -195,10 +195,10 @@ function GState:drawLightning()
   local colorid = math.floor(self.lightningColor % #self.kittenColors) +1
   local r, g, b = unpack(self.kittenColors[colorid])
   
-  love.graphics.setColor(r, g, b, 125)
+  love.graphics.setColor(r, g, b, 125/255)
   love.graphics.rectangle("fill", 0,0, SWidth, SHeight)
   
-  love.graphics.setColor(255,255,255,255)
+  love.graphics.setColor(1,1,1,1)
   love.graphics.draw(self.lightningImage,
     self.lightningX,
     self.lightningY,
@@ -214,9 +214,9 @@ function GState:drawButtons()
   for id,btn in pairs(self.touchControls) do
     
     if btn.down then
-      love.graphics.setColor(170,170,170,200)
+      love.graphics.setColor(170/255,170/255,170/255,200/255)
     else
-      love.graphics.setColor(255,255,255,200)
+      love.graphics.setColor(1,1,1,200/255)
     end
     
     love.graphics.draw(

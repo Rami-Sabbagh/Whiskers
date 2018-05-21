@@ -22,7 +22,7 @@ function SState:enter()
   
   print("--==Entered Spash State==--")
   
-  love.graphics.setBackgroundColor(70,70,70,255)
+  love.graphics.setBackgroundColor(70/255,70/255,70/255,1)
   
   self.finishedLoading = false
   
@@ -59,7 +59,7 @@ end
 
 function SState:draw()
   
-  love.graphics.setColor(255,255,255,255)
+  love.graphics.setColor(1,1,1,1)
   love.graphics.draw(self.logoImage, self.logoX, self.logoY)
   
 end
@@ -88,7 +88,7 @@ function SState:AddImages(path)
     
     local ItemPath = path..item
     
-    if love.filesystem.isDirectory(ItemPath) then
+    if love.filesystem.getInfo(ItemPath,"directory") then
       
       self:AddImages(ItemPath.."/")
       
@@ -115,7 +115,7 @@ function SState:AddSFX(path)
     
     local ItemPath = path..item
     
-    if love.filesystem.isDirectory(ItemPath) then
+    if love.filesystem.getInfo(ItemPath,"directory") then
       
       self:AddImages(ItemPath.."/")
       
@@ -142,7 +142,7 @@ function SState:AddMusic(path)
     
     local ItemPath = path..item
     
-    if love.filesystem.isDirectory(ItemPath) then
+    if love.filesystem.getInfo(ItemPath,"directory") then
       
       self:AddImages(ItemPath.."/")
       

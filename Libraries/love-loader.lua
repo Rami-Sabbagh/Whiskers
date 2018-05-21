@@ -46,7 +46,7 @@ local resourceKinds = {
     requestKey  = "sourcePath",
     resourceKey = "source",
     constructor = function(path)
-      return love.audio.newSource(path)
+      return love.audio.newSource(path, "stream")
     end
   },
   font = {
