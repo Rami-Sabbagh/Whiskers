@@ -90,8 +90,6 @@ end
 function gameState:enter()
 	print("--==Game State Entered==--")
 	
-	love.audio.stop() --Stop any audio from previous states
-	
 	love.graphics.setBackgroundColor(70/255,70/255,70/255, 1)
 	
 	love.physics.setMeter(self.PTM)
@@ -121,7 +119,7 @@ function gameState:enter()
 end
 
 function gameState:leave()
-	
+	love.audio.stop() --Stop all the audio which is being played by this state
 end
 
 function gameState:showLightning()
