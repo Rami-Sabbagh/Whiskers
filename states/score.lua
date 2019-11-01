@@ -64,8 +64,8 @@ function scoreState:enter()
 	self:calculateKittens()
 	
 	--Calculate Winner Variables
-	self.winnerImage = _image[self.kittenNames[self.kittens[1].id]]
-	self.winnerColor = _colorPalette[self.kittens[1].id]
+	self.winnerImage = _image[self.kittenNames[self.kittens[1].playerID]]
+	self.winnerColor = _colorPalette[self.kittens[1].playerID]
 	
 	self.winnerWidth, self.winnerHeight = self.winnerImage:getDimensions()
 	
@@ -81,7 +81,7 @@ function scoreState:calculateKittens()
 	self.endPositions = {}
 	
 	for i=1,4 do
-		local kitten = self.game.kittens[i]
+		local kitten = self.game.world.kittens[i]
 		self.kittens[i] = kitten
 	end
 	
