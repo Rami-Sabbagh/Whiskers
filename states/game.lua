@@ -12,7 +12,7 @@ local gameState = {}
 
 gameState.PTM = 32
 gameState.kittenScale = 20*gameState.PTM
-gameState.pelletGrowScale = 1.44
+
 gameState.pelletStartTime = 15
 gameState.pelletTime = 10
 
@@ -20,7 +20,7 @@ gameState.powerupStartTime = 15
 gameState.powerupTime = 10
 gameState.powerupTestID = nil
 
-gameState.lightningShrinkScale = gameState.pelletGrowScale
+gameState.lightningShrinkScale = Pellet.growScale
 gameState.lightningGrowScale = 1.68
 
 gameState.bulletScale = 1.03

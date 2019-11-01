@@ -6,6 +6,9 @@ local Pellet = class("whiskers.Pellet")
 
 function Pellet:initialize( game, x, y )
 	
+--Static variables
+Pellet.growScale = 1.44 --The scale factor of the kittens when a pellet is eaten.
+
 	self.game = game
 	
 	self.size = self.game.PTM/4
