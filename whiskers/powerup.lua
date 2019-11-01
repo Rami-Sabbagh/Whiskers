@@ -31,7 +31,7 @@ function Powerup:initialize( world, x, y, typeID )
 	self.world = world --The whiskers world
 	self.worldWidth, self.worldHeight = self.world:getDimensions() --The dimensions of the world
 	
-	self.typeID = typeID or love.math.random(1, #self.types) --The typeID of the powerup
+	self.typeID = typeID or love.math.random(1, #self.names) --The typeID of the powerup
 	self.name = self.names[self.typeID] --The name of the powerup
 	
 	self.body = love.physics.newBody(self.world:getB2World(), x, y, "dynamic")
