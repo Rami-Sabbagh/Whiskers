@@ -65,7 +65,7 @@ function scoreState:enter()
 	
 	--Calculate Winner Variables
 	self.winnerImage = _image[self.kittenNames[self.kittens[1].id]]
-	self.winnerColor = self.game.kittenColors[self.kittens[1].id]
+	self.winnerColor = _colorPalette[self.kittens[1].id]
 	
 	self.winnerWidth, self.winnerHeight = self.winnerImage:getDimensions()
 	
