@@ -26,7 +26,7 @@ function Kitten:initialize(game, id)
 	
 	self.world = self.game.world
 	self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight
-	self.color = self.game.kittenColors[self.id]
+	self.color = _colorPalette[self.id]
 	
 	self.image = _image["francineWhite"]
 	self.imageSize = self.image:getDimensions()
