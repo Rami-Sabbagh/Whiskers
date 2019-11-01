@@ -3,12 +3,6 @@
 
 _DEBUG = false --The debug flag, true when the game is ran with `--debug`
 
-_states = {} --Contains all the loaded states
-for k, stateName in pairs(love.filesystem.getDirectoryItems("/states/")) do
-	stateName = stateName:sub(1, -5) --Remove the .lua extension from the filename
-	_states[stateName] = require("states."..stateName) --Load each state
-end
-
 _image = {} --Contains all the loaded images
 _sfx = {} --Contains all the loaded sfx
 _music = {} --Contains all the loaded music
@@ -24,3 +18,9 @@ _colorPalette = {
 	{246/255, 95/255 , 209/255, 1}, --Pink
 	{246/255, 132/255, 96/255 , 1}  --Orange
 }
+
+_states = {} --Contains all the loaded states
+for k, stateName in pairs(love.filesystem.getDirectoryItems("/states/")) do
+	stateName = stateName:sub(1, -5) --Remove the .lua extension from the filename
+	_states[stateName] = require("states."..stateName) --Load each state
+end
