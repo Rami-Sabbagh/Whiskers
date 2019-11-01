@@ -14,10 +14,10 @@ function Bullet:initialize(kitten)
 	Kitten = Kitten or require("whiskers.kitten") --Load the kitten class if not loaded
 	self.kitten = kitten --The parent kitten which is shooting the bullets
 	
-	self.world = kitten.world --The physics world of the game.
+	self.world = self.kitten.world --The physics world of the game.
 	self.worldWidth, self.worldHeight = self.world:getDimensions() --The dimensions of the whiskers world
 	
-	self.id = self.kitten.id --The id of the kitten which is shooting the bullets
+	self.playerID = self.kitten.playerID --The id of the kitten which is shooting the bullets
 	self.color = self.kitten.color --The color of the kitten which is shooting the bullets
 	
 	self.size = self.kitten.size * self.sizeRatio --The size of the bullet
@@ -46,7 +46,7 @@ function Bullet:initialize(kitten)
 	
 	self.fixture:setFriction(0)
 	self.fixture:setRestitution(0)
-	self.fixture:setGroupIndex(-self.id)
+	self.fixture:setGroupIndex(-self.playerID)
 	
 	if love.math.random(1,4) % 2 == 0 then
 		kittenRot = kittenRot + love.math.random()*math.rad(3)
