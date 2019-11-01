@@ -12,13 +12,6 @@ local gameState = {}
 
 gameState.PTM = 32
 gameState.kittenScale = 20*gameState.PTM
-gameState.kittenColors = {
-	{96/255 , 246/255, 133/255, 1}, --Green
-	{246/255, 207/255, 95/255 , 1}, --Yellow
-	{95/255 , 134/255, 246/255, 1}, --Blue
-	{246/255, 95/255 , 209/255, 1}, --Pink
-	{246/255, 132/255, 96/255 , 1}  --Orange
-}
 gameState.pelletGrowScale = 1.44
 gameState.pelletStartTime = 15
 gameState.pelletTime = 10
