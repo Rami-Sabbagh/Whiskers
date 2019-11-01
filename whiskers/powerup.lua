@@ -1,7 +1,10 @@
-local class = require("libraries.middleclass")
+--Powerup class, makes special game effects.
+
 local tween = require("libraries.tween")
+local class = require("libraries.middleclass")
 
 local Kitten = require("whiskers.kitten")
+local Pellet = require("whiskers.pellet")
 
 local Powerup = class("whiskers.Powerup")
 
@@ -19,6 +22,7 @@ Powerup.typesCalls = {
 	--"gotStar"
 }
 
+--The duration of the lightning (scale) powerup overlay
 Powerup.scaleDuration = 0.5
 
 function Powerup:initialize( game, x, y, id )
@@ -51,14 +55,15 @@ function Powerup:initialize( game, x, y, id )
 	self.tween2 = tween.new(self.scaleDuration, self, {imageScale = self.imageScale1})
 end
 
+--Draw the powerup
 function Powerup:draw()
 	if self.dead then return end
 	
-	local bx, by = self.body:getPosition()
-	local rot = self.body:getAngle()
+	local bx, by = self.body:getPosition() --The current location of the powerup body
+	local rot = self.body:getAngle() --The current angle of the powerup body
 	
-	love.graphics.setColor(1,1,1,1)
-	love.graphics.draw(self.image, bx,by, rot, self.imageScale,self.imageScale, self.imageOX,self.imageOY)
+	love.graphics.setColor(1, 1, 1, 1) --We don't want to tint the image
+	love.graphics.draw(self.image, bx,by, rot, self.imageScale, self.imageScale, self.imageOX,self.imageOY) --Draw the powerup
 end
 
 function Powerup:update(dt)

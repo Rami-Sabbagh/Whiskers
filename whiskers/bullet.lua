@@ -1,30 +1,31 @@
+--Bullet class, the kitten eye which is being shot at other kitties.
+
 local class = require("libraries.middleclass")
+local Bullet = class("whiskers.Bullet")
 
 local Kitten --The kitten class, loaded in initialize to avoid stack overflows
 
-local Bullet = class("whiskers.Bullet")
-
-Bullet.sizeRatio = 84/504
+Bullet.sizeRatio = 84/504 --Used for calculating the bullet size by multiplying this factor by the kitten size.
 Bullet.speed = (32*32)/3
 
 function Bullet:initialize(kitten)
-	Kitten = Kitten or require("whiskers.kitten")
+	Kitten = Kitten or require("whiskers.kitten") --Load the kitten class if not loaded
 	
-	self.game = kitten.game
-	self.world = kitten.game.world
-	self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight
+	self.game = kitten.game --The game state which the bullet is running in.
+	self.world = kitten.game.world --The physics world of the game.
+	self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight --The dimensions of the physics world
 	
-	self.kitten = kitten
-	self.id = self.kitten.id
-	self.color = self.kitten.color
+	self.kitten = kitten --The parent kitten which is shooting the bullets
+	self.id = self.kitten.id --The id of the kitten which is shooting the bullets
+	self.color = self.kitten.color --The color of the kitten which is shooting the bullets
 	
-	self.size = self.kitten.size * self.sizeRatio
+	self.size = self.kitten.size * self.sizeRatio --The size of the bullet
 	
-	self.image = _image["eyeBullet2"]
-	self.imageWidth, self.imageHeight = self.image:getDimensions()
-	self.imageScale = self.size/self.imageWidth
+	self.image = _image["eyeBullet2"] --The image of bullet
+	self.imageWidth, self.imageHeight = self.image:getDimensions() --The dimensions of the bullet image
+	self.imageScale = self.size/self.imageWidth --The scale factor to draw the image with
 	
-	self.imageOX, self.imageOY = self.imageWidth/2, self.imageHeight/2
+	self.imageOX, self.imageOY = self.imageWidth/2, self.imageHeight/2 --The origin of the image, calculated to be the center.
 	
 	local kittenScale = self.kitten.size/self.game.PTM
 	local kittenX, kittenY = self.kitten.body:getPosition()

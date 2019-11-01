@@ -1,9 +1,9 @@
-local class = require("libraries.middleclass")
+--The kitten class, which is the main object of the game
 local tween = require("libraries.tween")
-
 local Bullet = require("whiskers.bullet")
 
-local Kitten = class("Kitten")
+local class = require("libraries.middleclass")
+local Kitten = class("whiskers.Kitten")
 
 Kitten.density = 0.7
 Kitten.traceDuration = 0.5
@@ -11,8 +11,8 @@ Kitten.scaleDuration = 0.5
 Kitten.turretDuration = 7
 
 function Kitten:initialize(game, id)
-	self.game = game
-	self.id = id
+	self.game = game --The game state
+	self.id = id --The kitten ID {1, 2, 3, 4}
 	
 	self.traces = {}
 	self.traceTweens = {}
