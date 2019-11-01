@@ -1,6 +1,5 @@
 local loader = require("libraries.love-loader")
 local gamestate = require("libraries.gamestate")
-local resources = require("whiskers.resources")
 
 local splashState = {}
 
@@ -12,7 +11,7 @@ function splashState:init()
 	self.logoX = math.floor((screenWidth - self.logoImage:getWidth())/2)
 	self.logoY = math.floor((screenHeight - self.logoImage:getHeight())/2)
 	
-	--Add resources to load
+	--Queue resources to load
 	self:queueImages()
 	self:queueSFX()
 	self:queueMusic()
@@ -72,8 +71,9 @@ function splashState:queueImages(path)
 			self:queueImages(itemPath.."/")
 		else
 			local _, fileName, fileExtension = self:splitFilePath(itemPath)
+
 			if fileExtension == "png" then
-				loader.newImage(resources.Image, fileName, itemPath)
+				loader.newImage(_image, fileName, itemPath)
 			end
 		end
 	end
@@ -84,25 +84,17 @@ function splashState:queueSFX(path)
 	local items = love.filesystem.getDirectoryItems(path)
 	
 	for id, item in ipairs(items) do
-		
 		local itemPath = path..item
 		
 		if love.filesystem.getInfo(itemPath, "directory") then
-			
 			self:queueSFX(itemPath.."/")
-			
 		else
-			
 			local _, fileName, fileExtension = self:splitFilePath(itemPath)
 			
 			if fileExtension == "wav" then
-				
-				loader.newSource(resources.SFX, fileName, itemPath)
-				
+				loader.newSource(_sfx, fileName, itemPath)
 			end
-			
 		end
-		
 	end
 end
 
@@ -111,25 +103,17 @@ function splashState:queueMusic(path)
 	local items = love.filesystem.getDirectoryItems(path)
 	
 	for id, item in ipairs(items) do
-		
 		local itemPath = path..item
 		
 		if love.filesystem.getInfo(itemPath, "directory") then
-			
 			self:queueMusic(itemPath.."/")
-			
 		else
-			
 			local _, fileName, fileExtension = self:splitFilePath(ItemPath)
 			
 			if fileExtension == "mp3" then
-				
-				loader.newSource(resources.Music, fileName, itemPath, "stream")
-				
+				loader.newSource(_music, fileName, itemPath, "stream")
 			end
-			
 		end
-		
 	end
 end
 
