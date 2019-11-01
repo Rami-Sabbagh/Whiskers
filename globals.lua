@@ -19,6 +19,7 @@ _colorPalette = {
 	{246/255, 132/255, 96/255 , 1}  --Orange
 }
 
-for k, stateName in pairs(love.filesystem.getDirectoryItems("/states/")) do
-	stateName = stateName:sub(1, -5) --Remove the .lua extension from the filename
-	_states[stateName] = require("states."..stateName) --Load each state
+_pixelsToMeterFactor = 32 --How many pixels in each physics meter
+
+
+_states = {} --Contains all the loaded states (which are loaded in main.lua -> love.load)

@@ -23,6 +23,14 @@ function love.load(args)
 	if args[#args] == "--debug" then _DEBUG = true end
 	
 	if _DEBUG then lovebird.init() end
+
+	love.physics.setMeter(_pixelsToMeterFactor) --Set the physics PTM factor
+
+	--Load the states
+	for k, stateName in pairs(love.filesystem.getDirectoryItems("/states/")) do
+		stateName = stateName:sub(1, -5) --Remove the .lua extension from the filename
+		_states[stateName] = require("states."..stateName) --Load each state
+	end
 	
 	gamestate.registerEvents()
 	gamestate.switch(_states["splash"])
