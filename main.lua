@@ -1,7 +1,7 @@
 local gamestate = require("libraries.gamestate")
 local lovebird = require("libraries.lovebird")
 
-require("whiskers.globals") --Load the game's globals
+require("globals") --Load the game's globals
 
 function love.load(args)
 	if args[#args] == "--debug" then
