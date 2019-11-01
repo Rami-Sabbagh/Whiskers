@@ -1,6 +1,6 @@
-local Loader = require("Libraries.love-loader")
-local GameState = require("Libraries.gamestate")
-local Resources = require("Engine.Resources")
+local loader = require("libraries.love-loader")
+local gamestate = require("libraries.gamestate")
+local resources = require("engine.resources")
 
 local SState = {}
 
@@ -8,7 +8,7 @@ local SWidth, SHeight = love.graphics.getDimensions()
 
 function SState:init()
   --Load the RL4G Logo
-  self.logoImage = love.graphics.newImage("Assets/Misc/RL4G_LOGO.png")
+  self.logoImage = love.graphics.newImage("assets/miscellaneous/RL4G_LOGO.png")
   self.logoX = math.floor((SWidth - self.logoImage:getWidth())/2)
   self.logoY = math.floor((SHeight - self.logoImage:getHeight())/2)
   
@@ -26,18 +26,18 @@ function SState:enter()
   
   self.finishedLoading = false
   
-  Loader.start(
+  loader.start(
     
     --Finished Loading
     function()
       print("Finished Loading")
       self.finishedLoading = true
-      GameState.switch( require("States.Game") )
+      gamestate.switch( require("States.Game") )
     end,
     
     --Item Loaded
     function(kind, holder, key)
-      print("Loaded", math.floor((Loader.loadedCount/Loader.resourceCount)*100) .. "%",kind, key)
+      print("Loaded", math.floor((loader.loadedCount/loader.resourceCount)*100) .. "%",kind, key)
       
       if kind == "stream" then
         holder[key]:setLooping(true)
@@ -49,7 +49,7 @@ function SState:enter()
   
   print("Loader Started")
   
-  print("Resources to load:", Loader.resourceCount)
+  print("Resources to load:", loader.resourceCount)
   
 end
 
@@ -67,7 +67,7 @@ end
 function SState:update(dt)
   
   if not self.finishedLoading then
-    Loader.update(dt)
+    loader.update(dt)
   end
   
 end
@@ -98,7 +98,7 @@ function SState:AddImages(path)
       
       if FileExtension == "png" then
         
-        Loader.newImage(Resources.Image, FileName, ItemPath)
+        loader.newImage(resources.Image, FileName, ItemPath)
         
       end
       
@@ -125,7 +125,7 @@ function SState:AddSFX(path)
       
       if FileExtension == "wav" then
         
-        Loader.newSource(Resources.SFX, FileName, ItemPath)
+        loader.newSource(resources.SFX, FileName, ItemPath)
         
       end
       
@@ -152,7 +152,7 @@ function SState:AddMusic(path)
       
       if FileExtension == "mp3" then
         
-        Loader.newSource(Resources.Music, FileName, ItemPath, "stream")
+        loader.newSource(resources.Music, FileName, ItemPath, "stream")
         
       end
       
