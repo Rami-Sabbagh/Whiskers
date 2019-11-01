@@ -8,56 +8,62 @@ local Pellet = require("whiskers.pellet")
 
 local Powerup = class("whiskers.Powerup")
 
-Powerup.types = {
+Powerup.names = {
 	--"bomb",
 	"bullet",
 	"lightning",
 	--"star"
 }
 
-Powerup.typesCalls = {
-	--"gotBomb",
-	"gotTurret",
-	"gotLightning",
-	--"gotStar"
-}
+--Physics Fields
+Powerup.size = 0.6 * _pixelsToMeterFactor --A powerup box is 0.6 meters large.
 
---The duration of the lightning (scale) powerup overlay
+--The duration of powerup up-down scaling
 Powerup.scaleDuration = 0.5
 
-function Powerup:initialize( game, x, y, id )
+--Game Fields
+
+--Lightning powerup
+Powerup.lightningShrinkScale = Pellet.growthFactor
+Powerup.lightningGrowScale = 1.68
+
+function Powerup:initialize( world, x, y, typeID )
+	self.world = world --The whiskers world
+	self.worldWidth, self.worldHeight = self.world:getDimensions() --The dimensions of the world
 	
-	self.game = game
+	self.typeID = typeID or love.math.random(1, #self.types) --The typeID of the powerup
+	self.name = self.names[self.typeID] --The name of the powerup
 	
-	self.world = self.game.world
-	self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight
-	
-	self.id = id or love.math.random(1,#self.types)
-	self.name = self.types[self.id]
-	
-	self.size = self.game.PTM*0.60
-	
-	self.image = _image[self.name.."Icon"]
-	self.imageWidth, self.imageHeight = self.image:getDimensions()
-	self.imageScale = self.size/self.imageWidth
-	self.imageScale1 = self.imageScale
-	self.imageScale2 = (self.game.PTM*0.68)/self.imageWidth
-	
-	self.imageOX, self.imageOY = self.imageWidth/2, self.imageHeight/2
-	
-	self.body = love.physics.newBody(self.world, x, y, "dynamic")
+	self.body = love.physics.newBody(self.world:getB2World(), x, y, "dynamic")
 	self.shape = love.physics.newRectangleShape(self.size,self.size)
 	self.fixture = love.physics.newFixture(self.body, self.shape)
 	
 	self.body:setUserData(self)
 	
+	self.headless = true
+	if not self.world:isHeadless() then self:initializeResources() end
+end
+
+--Initialize the graphics & audio sections of the powerup, skipped when running in headless mode.
+-- It's safe to call this seperately after being initialized in headless mode, it'll just deactivate the headless mode and bring back graphics
+function Powerup:initializeResources()
+	self.headless = false
+
+	self.image = _image[self.name.."Icon"]
+	self.imageWidth, self.imageHeight = self.image:getDimensions()
+	self.imageScale = self.size/self.imageWidth
+	self.imageScale1 = self.imageScale
+	self.imageScale2 = (_pixelsToMeterFactor*0.68)/self.imageWidth
+	
+	self.imageOX, self.imageOY = self.imageWidth/2, self.imageHeight/2
+
 	self.tween1 = tween.new(self.scaleDuration, self, {imageScale = self.imageScale2})
 	self.tween2 = tween.new(self.scaleDuration, self, {imageScale = self.imageScale1})
 end
 
 --Draw the powerup
 function Powerup:draw()
-	if self.dead then return end
+	if self.consumed then return end
 	
 	local bx, by = self.body:getPosition() --The current location of the powerup body
 	local rot = self.body:getAngle() --The current angle of the powerup body
@@ -67,17 +73,10 @@ function Powerup:draw()
 end
 
 function Powerup:update(dt)
-	if self.dead then
-		
+	if self.consumed then
 		if self.toApply then
-			
-			--Apply the powerup
-			if self.toApply[self.typesCalls[self.id]] then
-				self.toApply[self.typesCalls[self.id]](self.toApply)
-			end
-			
+			self["consumed"..self.name:sub(1,1):upper()..self.name:sub(2,-1)](self, self.toApply)
 			self.toApply = nil
-			
 		end
 		
 		return
@@ -96,24 +95,27 @@ function Powerup:update(dt)
 	elseif by > self.worldHeight then
 		self.body:setY(0)
 	end
+
+	if not self.headless then
 	
-	if self.tweenFlag then
-		self.tweenFlag = not self.tween2:update(dt)
-		if not self.tweenFlag then
-			self.tween1:set(0)
-		end
-	else
-		self.tweenFlag = self.tween1:update(dt)
 		if self.tweenFlag then
-			self.tween2:set(0)
+			self.tweenFlag = not self.tween2:update(dt)
+			if not self.tweenFlag then
+				self.tween1:set(0)
+			end
+		else
+			self.tweenFlag = self.tween1:update(dt)
+			if self.tweenFlag then
+				self.tween2:set(0)
+			end
 		end
+		
 	end
-	
 end
 
 function Powerup:destroy()
 	self.body:destroy()
-	self.dead = true
+	self.consumed = true
 end
 
 function Powerup:preSolve(myFixture, otherFixture, contact)
@@ -125,6 +127,29 @@ function Powerup:preSolve(myFixture, otherFixture, contact)
 		contact:setEnabled(false)
 		self:destroy()
 		self.toApply = other
+	end
+end
+
+--== Power up effecs ==--
+
+function Powerup:consumedBullet(kitten)
+	kitten:gotTurret()
+end
+
+function Powerup:consumedLightning(tKitten)
+	for id, kitten in ipairs(self.world:getKittens()) do
+		if kitten == tKitten then
+			kitten:growByFactor(self.lightningGrowScale)
+		else
+			kitten:shrinkByFactor(self.lightningShrinkScale)
+		end
+	end
+	
+	self.world:showLightning()
+
+	if not self.headless then
+		_sfx["sirenWhistle"]:stop()
+		_sfx["sirenWhistle"]:play()
 	end
 end
 
