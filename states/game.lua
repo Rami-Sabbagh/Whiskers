@@ -176,8 +176,8 @@ end
 function gameState:drawLightning()
 	if not self.lightningTween then return end
 	
-	local colorid = math.floor(self.lightningColor % #self.kittenColors) +1
-	local r, g, b = unpack(self.kittenColors[colorid])
+	local colorid = math.floor(self.lightningColor % #_colorPalette) +1
+	local r, g, b = unpack(_colorPalette[colorid])
 	
 	love.graphics.setColor(r, g, b, 125/255)
 	love.graphics.rectangle("fill", 0,0, screenWidth, screenHeight)

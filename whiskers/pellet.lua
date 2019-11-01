@@ -15,7 +15,7 @@ Pellet.growScale = 1.44 --The scale factor of the kittens when a pellet is eaten
 	
 	self.world = self.game.world
 	self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight
-	self.color = self.game.kittenColors[5]
+	self.color = _colorPalette[5] --The color of the pellet
 	
 	local x = x or self.size+love.math.random()*(self.worldWidth-self.size*2)
 	local y = y or self.size+love.math.random()*(self.worldHeight-self.size*2)
