@@ -1,0 +1,28 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run with -debug",
+            "type": "shell",
+            "command": "love . -debug",
+            "windows": {
+                "command": "lovec . -debug"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+
+        {
+            "label": "Run Whiskers",
+            "type": "shell",
+            "command": "love .",
+            "windows": {
+                "command": "lovec ."
+            }
+        }
+    ]
+}
