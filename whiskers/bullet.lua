@@ -8,7 +8,7 @@ Bullet.sizeRatio = 84/504
 Bullet.speed = (32*32)/3
 
 function Bullet:initialize(kitten)
-	Kitten = Kitten or require("Engine.Kitten")
+	Kitten = Kitten or require("whiskers.kitten")
 	
 	self.game = kitten.game
 	self.world = kitten.game.world

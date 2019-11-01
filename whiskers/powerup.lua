@@ -1,28 +1,27 @@
-local class = require("Libraries.middleclass")
-local tween = require("Libraries.tween")
+local class = require("libraries.middleclass")
+local tween = require("libraries.tween")
 
-local Resources = require("Engine.Resources")
-local Kitten = require("Engine.Kitten")
+local Kitten = require("whiskers.Kitten")
 
-local PowerUp = class("PowerUp")
+local Powerup = class("whiskers.Powerup")
 
-PowerUp.types = {
+Powerup.types = {
   --"bomb",
   "bullet",
   "lightning",
   --"star"
 }
 
-PowerUp.typesCalls = {
+Powerup.typesCalls = {
   --"gotBomb",
   "gotTurret",
   "gotLightning",
   --"gotStar"
 }
 
-PowerUp.scaleDuration = 0.5
+Powerup.scaleDuration = 0.5
 
-function PowerUp:initialize( game, x, y, id )
+function Powerup:initialize( game, x, y, id )
   
   self.game = game
   
@@ -34,7 +33,7 @@ function PowerUp:initialize( game, x, y, id )
   
   self.size = self.game.PTM*0.60
   
-  self.image = Resources.Image[self.name.."Icon"]
+  self.image = _image[self.name.."Icon"]
   self.imageWidth, self.imageHeight = self.image:getDimensions()
   self.imageScale = self.size/self.imageWidth
   self.imageScale1 = self.imageScale
@@ -52,7 +51,7 @@ function PowerUp:initialize( game, x, y, id )
   self.tween2 = tween.new(self.scaleDuration, self, {imageScale = self.imageScale1})
 end
 
-function PowerUp:draw()
+function Powerup:draw()
   if self.dead then return end
   
   local bx, by = self.body:getPosition()
@@ -62,7 +61,7 @@ function PowerUp:draw()
   love.graphics.draw(self.image, bx,by, rot, self.imageScale,self.imageScale, self.imageOX,self.imageOY)
 end
 
-function PowerUp:update(dt)
+function Powerup:update(dt)
   if self.dead then
     
     if self.toApply then
@@ -107,12 +106,12 @@ function PowerUp:update(dt)
   
 end
 
-function PowerUp:destroy()
+function Powerup:destroy()
   self.body:destroy()
   self.dead = true
 end
 
-function PowerUp:preSolve(myFixture, otherFixture, contact)
+function Powerup:preSolve(myFixture, otherFixture, contact)
   local other = otherFixture:getBody():getUserData()
   
   if type(other) ~= "table" then return end
@@ -124,4 +123,4 @@ function PowerUp:preSolve(myFixture, otherFixture, contact)
   end
 end
 
-return PowerUp
+return Powerup

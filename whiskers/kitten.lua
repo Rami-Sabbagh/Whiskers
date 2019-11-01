@@ -1,7 +1,7 @@
 local class = require("libraries.middleclass")
 local tween = require("libraries.tween")
 
-local Bullet = require("whiskers.Bullet")
+local Bullet = require("whiskers.bullet")
 
 local Kitten = class("Kitten")
 

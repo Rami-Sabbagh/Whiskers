@@ -1,10 +1,8 @@
-local class = require("Libraries.middleclass")
+local class = require("libraries.middleclass")
 
-local Kitten = require("Engine.Kitten")
+local Kitten = require("whiskers.kitten")
 
-local Resources = require("Engine.Resources")
-
-local Pellet = class("Pellet")
+local Pellet = class("whiskers.Pellet")
 
 function Pellet:initialize( game, x, y )
   
@@ -83,7 +81,7 @@ function Pellet:preSolve(myFixture, otherFixture, contact)
     contact:setEnabled(false)
     self:destroy()
     self.toGrow = other
-    Resources.SFX["munch"]:play()
+    _sfx["munch"]:play()
   end
 end
 
