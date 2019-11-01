@@ -22,4 +22,3 @@ _colorPalette = {
 for k, stateName in pairs(love.filesystem.getDirectoryItems("/states/")) do
 	stateName = stateName:sub(1, -5) --Remove the .lua extension from the filename
 	_states[stateName] = require("states."..stateName) --Load each state
-end_states = {} --Contains all the loaded states (which are loaded in main.lua -> love.load)_states = {} --Contains all the loaded states (which are loaded in main.lua -> love.load)
