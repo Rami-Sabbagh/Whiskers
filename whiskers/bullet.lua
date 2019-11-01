@@ -8,14 +8,15 @@ local Kitten --The kitten class, loaded in initialize to avoid stack overflows
 Bullet.sizeRatio = 84/504 --Used for calculating the bullet size by multiplying this factor by the kitten size.
 Bullet.speed = (32*32)/3
 
+Bullet.bulletScale = 1.03
+
 function Bullet:initialize(kitten)
 	Kitten = Kitten or require("whiskers.kitten") --Load the kitten class if not loaded
-	
-	self.game = kitten.game --The game state which the bullet is running in.
-	self.world = kitten.game.world --The physics world of the game.
-	self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight --The dimensions of the physics world
-	
 	self.kitten = kitten --The parent kitten which is shooting the bullets
+	
+	self.world = kitten.world --The physics world of the game.
+	self.worldWidth, self.worldHeight = self.world:getDimensions() --The dimensions of the whiskers world
+	
 	self.id = self.kitten.id --The id of the kitten which is shooting the bullets
 	self.color = self.kitten.color --The color of the kitten which is shooting the bullets
 	
@@ -27,14 +28,14 @@ function Bullet:initialize(kitten)
 	
 	self.imageOX, self.imageOY = self.imageWidth/2, self.imageHeight/2 --The origin of the image, calculated to be the center.
 	
-	local kittenScale = self.kitten.size/self.game.PTM
+	local kittenScale = self.kitten.size / _pixelsToMeterFactor --The size of the kitten in meters
 	local kittenX, kittenY = self.kitten.body:getPosition()
 	local kittenRot = self.kitten.body:getAngle()
 	
 	local spawnX = kittenX + (math.cos(kittenRot)*125 + math.sin(kittenRot)*155)*self.imageScale
 	local spawnY = kittenY - (math.cos(kittenRot)*155 - math.sin(kittenRot)*125)*self.imageScale
 	
-	self.body = love.physics.newBody(self.world, spawnX, spawnY, "dynamic")
+	self.body = love.physics.newBody(self.world:getB2World(), spawnX, spawnY, "dynamic")
 	self.shape = love.physics.newRectangleShape(self.size, self.size)
 	self.fixture = love.physics.newFixture(self.body, self.shape)
 	
@@ -73,8 +74,8 @@ function Bullet:update(dt)
 	if self.dead then
 		
 		if self.toShrink then
-			self.toShrink:shrinkByScale(self.game.bulletScale)
-			self.kitten:growByScale(self.game.bulletScale)
+			self.toShrink:shrinkByFactor(self.bulletScale)
+			self.kitten:growByFactor(self.bulletScale)
 			
 			self.toShrink = nil
 		end
