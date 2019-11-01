@@ -1,38 +1,36 @@
-local tween = require("Libraries.tween")
-local GameState = require("Libraries.gamestate")
+local tween = require("libraries.tween")
+local gamestate = require("libraries.gamestate")
 
-local Resources = require("Engine.Resources")
+local screenWidth, screenHeight = love.graphics.getDimensions()
 
-local SWidth, SHeight = love.graphics.getDimensions()
+local scoreState = {}
 
-local SState = {}
-
-SState.duration = 0.3
-SState.kittenNames = {
+scoreState.duration = 0.3
+scoreState.kittenNames = {
   "clarenceWins",
   "helenWins",
   "johnrWins",
   "margieWins"
 }
 
-function SState:init()
+function scoreState:init()
   
   --The screen width is devided 12 section, 1 for each side
   
-  self.game = require("States.Game")
+  self.game = _states["game"]
   
-  self.rematchImage = Resources.Image["rematchButton"] --17 Pixel Bottom Padding
-  self.homeImage = Resources.Image["homeButton"]
+  self.rematchImage = _image["rematchButton"] --17 Pixel Bottom Padding
+  self.homeImage = _image["homeButton"]
   
   self.rematchWidth, self.rematchHeight = self.rematchImage:getDimensions()
   self.homeWidth, self.homeHeight = self.homeImage:getDimensions()
   
   self.homeScale = self.rematchHeight/self.homeHeight --This is the home button scale required to match the rematch one.
   
-  self.rematchScale = ((SWidth/12)*10)/(self.rematchWidth + 17 + self.homeWidth*self.homeScale)
+  self.rematchScale = ((screenWidth/12)*10)/(self.rematchWidth + 17 + self.homeWidth*self.homeScale)
   
-  self.rematchX, self.rematchY = SWidth/12, SHeight-self.rematchHeight*self.rematchScale
-  self.homeX, self.homeY = self.rematchX+(self.rematchWidth+17)*self.rematchScale, SHeight-self.homeHeight*self.rematchScale*self.homeScale
+  self.rematchX, self.rematchY = screenWidth/12, screenHeight-self.rematchHeight*self.rematchScale
+  self.homeX, self.homeY = self.rematchX+(self.rematchWidth+17)*self.rematchScale, screenHeight-self.homeHeight*self.rematchScale*self.homeScale
   
   self.rematchX1, self.rematchY1 = self.rematchX, self.rematchY
   self.rematchX2 = self.rematchX1 + self.rematchWidth*self.rematchScale
@@ -52,21 +50,21 @@ function SState:init()
   self.rematchTID = nil
   
   --WinnerName Height 93 + 17 padding
-  self.winnerX, self.winnerY = SWidth/2, 17*self.rematchScale
+  self.winnerX, self.winnerY = screenWidth/2, 17*self.rematchScale
   
-  self.biggestSize = (SHeight - self.rematchHeight*self.rematchScale*2) - 100*self.rematchScale
+  self.biggestSize = (screenHeight - self.rematchHeight*self.rematchScale*2) - 100*self.rematchScale
   self.firstX = self.rematchHeight*self.rematchScale + self.biggestSize/2
   
 end
 
-function SState:enter()
+function scoreState:enter()
 
   love.audio.stop()
   
   self:calculateKittens()
   
   --Calculate Winner Variables
-  self.winnerImage = Resources.Image[self.kittenNames[self.kittens[1].id]]
+  self.winnerImage = _image[self.kittenNames[self.kittens[1].id]]
   self.winnerColor = self.game.kittenColors[self.kittens[1].id]
   
   self.winnerWidth, self.winnerHeight = self.winnerImage:getDimensions()
@@ -77,7 +75,7 @@ function SState:enter()
   
 end
 
-function SState:calculateKittens()
+function scoreState:calculateKittens()
   self.kittens = {}
   self.positions = {}
   self.endPositions = {}
@@ -92,11 +90,11 @@ function SState:calculateKittens()
   end)
   
   self.scale = self.biggestSize / self.kittens[1].size
-  self.endPositions[1] = {self.firstX, SHeight/2}
+  self.endPositions[1] = {self.firstX, screenHeight/2}
   for i=2,4 do
     local prev, x = self.endPositions[i-1]
     x = prev[1]+(self.kittens[i-1].size*self.scale)/2
-    local y = SHeight/2 + self.biggestSize/2 - (self.kittens[i].size*self.scale)/2
+    local y = screenHeight/2 + self.biggestSize/2 - (self.kittens[i].size*self.scale)/2
     self.endPositions[i] = {x,y}
   end
   
@@ -113,21 +111,21 @@ function SState:calculateKittens()
   end
 end
 
-function SState:leave()
+function scoreState:leave()
   
 end
 
-function SState:rematch()
-  GameState.switch(self.game)
+function scoreState:rematch()
+  gamestate.switch(self.game)
 end
 
-function SState:draw()
+function scoreState:draw()
   self:drawKittens()
   self:drawButtons()
   self:drawWinnerName()
 end
 
-function SState:drawWinnerName()
+function scoreState:drawWinnerName()
   love.graphics.setColor(self.winnerColor)
   love.graphics.draw(self.winnerImage,
     self.winnerX,
@@ -139,7 +137,7 @@ function SState:drawWinnerName()
     0)
 end
 
-function SState:drawButtons()
+function scoreState:drawButtons()
   love.graphics.setColor(1,1,1,1)
   love.graphics.draw(self.rematchImage,
     self.rematchX,
@@ -159,7 +157,7 @@ function SState:drawButtons()
     self.homeOY)
 end
 
-function SState:drawKittens()
+function scoreState:drawKittens()
   for i=1,4 do
     local kitten = self.kittens[i]
     local pos = self.positions[i]
@@ -193,13 +191,13 @@ function SState:drawKittens()
   end
 end
 
-function SState:update(dt)
+function scoreState:update(dt)
   for i=1, 4 do
     if not self.tweens[i]:update(dt) then break end
   end
 end
 
-function SState:touchpressed(id,x,y,dx,dy,pressure)
+function scoreState:touchpressed(id,x,y,dx,dy,pressure)
   
   if not self.rematchTID then
     
@@ -212,7 +210,7 @@ function SState:touchpressed(id,x,y,dx,dy,pressure)
   
 end
 
-function SState:touchmoved(id,x,y,dx,dy,pressure)
+function scoreState:touchmoved(id,x,y,dx,dy,pressure)
   
   if self.rematchTID and self.rematchTID == id then
     
@@ -226,12 +224,12 @@ function SState:touchmoved(id,x,y,dx,dy,pressure)
   
 end
 
-function SState:touchreleased(id,x,y,dx,dy,pressure)
+function scoreState:touchreleased(id,x,y,dx,dy,pressure)
   
   if self.rematchTID and self.rematchTID == id then
     
     if self.rematchX1 <= x and self.rematchY1 <= y and self.rematchX2 >= x and self.rematchY2 >= y then
-      Resources:playMeow()
+      self:playMeow()
       self:rematch()
     end
     
@@ -241,19 +239,23 @@ function SState:touchreleased(id,x,y,dx,dy,pressure)
   
 end
 
-function SState:mousepressed(x,y,button,istouch)
+function scoreState:mousepressed(x,y,button,istouch)
   if istouch then return end
   self:touchpressed(0,x,y,0,0,1)
 end
 
-function SState:mousemoved(x,y,dx,dy,istouch)
+function scoreState:mousemoved(x,y,dx,dy,istouch)
   if istouch then return end
   self:touchmoved(0,x,y,dx,dy,1)
 end
 
-function SState:mousereleased(x,y,button,istouch)
+function scoreState:mousereleased(x,y,button,istouch)
   if istouch then return end
   self:touchreleased(0,x,y,0,0,1)
 end
 
-return SState
+function scoreState:playMeow()
+  _sfx[_meowNames[math.random(1, #_meowNames)]]:play()
+end
+
+return scoreState
