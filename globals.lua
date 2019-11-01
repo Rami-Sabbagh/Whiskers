@@ -5,6 +5,7 @@ _DEBUG = false --The debug flag, true when the game is ran with `--debug`
 
 _states = {} --Contains all the loaded states
 for k, stateName in pairs(love.filesystem.getDirectoryItems("/states/")) do
+	stateName = stateName:sub(1, -5) --Remove the .lua extension from the filename
 	_states[stateName] = require("states."..stateName) --Load each state
 end
 
