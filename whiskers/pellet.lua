@@ -7,6 +7,7 @@ local Pellet = class("whiskers.Pellet")
 
 --Static variables
 Pellet.growScale = 1.44 --The scale factor of the kittens when a pellet is eaten.
+Pellet.color = _colorPalette[5] --The default color of the pellet.
 
 --Spawn at a new location
 -- game: The game state to spawn the pllet in.
@@ -18,7 +19,6 @@ function Pellet:initialize(game, x, y)
 	
 	self.world = self.game.world --The physics world of the game
 	self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight --The dimensions of the world
-	self.color = _colorPalette[5] --The color of the pellet
 	
 	--Either be spawned at a specific position, or at a random one.
 	x = x or self.size + love.math.random()*(self.worldWidth - self.size*2)
