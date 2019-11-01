@@ -100,7 +100,7 @@ function gameState:enter()
 	self.worldWidth = self.kittenScale
 	self.worldHeight = screenHeight/(screenWidth/self.kittenScale)
 	
-	self.winSize = 7.8 * self.PTM--self.worldHeight
+	self.winSize = 7.8 * self.PTM
 	
 	self.world:setCallbacks(self.beginContact, self.endContact, self.preSolve, self.postSolve)
 	
@@ -412,8 +412,6 @@ function gameState:touchreleased(id,x,y,dx,dy,pressure)
 		end
 	end
 end
-
---beginContact, endContact, preSolve, postSolve
 
 function gameState.beginContact(fixtureA, fixtureB, contact)
 	local userdataA = fixtureA:getBody():getUserData()
