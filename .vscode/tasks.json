@@ -4,11 +4,11 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Run with -debug",
+            "label": "Run with --debug",
             "type": "shell",
-            "command": "love . -debug",
+            "command": "love . --debug",
             "windows": {
-                "command": "lovec . -debug"
+                "command": "lovec . --debug"
             },
             "group": {
                 "kind": "build",

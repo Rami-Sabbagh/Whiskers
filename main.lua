@@ -4,7 +4,7 @@ local lovebird = require("libraries.lovebird")
 local splashState = require("states.splash")
 
 function love.load(args)
-	if args[#args] == "-debug" then
+	if args[#args] == "--debug" then
 		_DEBUG = true
 	end
 	
