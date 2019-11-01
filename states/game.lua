@@ -404,6 +404,8 @@ function gameState:touchreleased(id,x,y,dx,dy,pressure)
 	end
 end
 
+--== Physics Events ==--
+
 function gameState.beginContact(fixtureA, fixtureB, contact)
 	local userdataA = fixtureA:getBody():getUserData()
 	
