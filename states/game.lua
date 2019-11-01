@@ -21,9 +21,6 @@ gameState.powerupStartTime = 15
 gameState.powerupTime = 10
 gameState.powerupTestID = nil
 
-gameState.lightningDuration = 0.45
-gameState.lightningColorSpeed = 16
-
 gameState.keyControls = {
 	z = 1,
 	x = 2,
@@ -61,19 +58,6 @@ function gameState:init()
 		
 		self.touchControls[i] = btn
 	end
-	
-	self.lightningImage = _image["bigWhiteLightning"]
-	self.lightningWidth, self.lightningHeight = self.lightningImage:getDimensions()
-	
-	self.lightningSmallScale = (screenWidth/6)/self.lightningWidth
-	self.lightningBigScale = (screenWidth/4)/self.lightningWidth
-	
-	self.lightningOX = self.lightningWidth/2
-	self.lightningX = screenWidth/2
-	
-	self.lightningStartY = -screenWidth/6
-	self.lightningMidY = screenHeight/2 - screenWidth/8
-	self.lightningEndY = screenHeight
 end
 
 function gameState:enter()
@@ -100,24 +84,6 @@ function gameState:leave()
 	love.audio.stop() --Stop all the audio which is being played by this state
 end
 
-function gameState:showLightning()
-	self.lightningScale = self.lightningSmallScale
-	
-	self.lightningY = self.lightningStartY
-	
-	self.lightningColor = 1
-	
-	self.lightningTween = tween.new(self.lightningDuration/2,self,{
-		lightningY = self.lightningMidY,
-		lightningScale = self.lightningBigScale
-	},"outExpo")
-	
-	self.lightningTween2 = tween.new(self.lightningDuration/2,self,{
-		lightningY = self.lightningEndY,
-		lightningScale = self.lightningSmallScale
-	},"inExpo")
-end
-
 function gameState:draw(vx,vy,vw,vh)
 	self.camera:enable()
 	
@@ -125,29 +91,9 @@ function gameState:draw(vx,vy,vw,vh)
 	
 	self.camera:disable()
 	
-	self:drawLightning()
+	self.world:drawLightning()
 	
 	self:drawButtons()
-end
-
-function gameState:drawLightning()
-	if not self.lightningTween then return end
-	
-	local colorid = math.floor(self.lightningColor % #_colorPalette) +1
-	local r, g, b = unpack(_colorPalette[colorid])
-	
-	love.graphics.setColor(r, g, b, 125/255)
-	love.graphics.rectangle("fill", 0,0, screenWidth, screenHeight)
-	
-	love.graphics.setColor(1,1,1,1)
-	love.graphics.draw(self.lightningImage,
-		self.lightningX,
-		self.lightningY,
-		0,
-		self.lightningScale,
-		self.lightningScale,
-		self.lightningOX
-	)
 end
 
 function gameState:drawButtons()
@@ -202,21 +148,11 @@ function gameState:update(dt)
 	end
 end
 
-function gameState:updateLightning(dt)
-	if not self.lightningTween then return end
-	local done = self.lightningTween:update(dt)
-	if done then
-		self.lightningTween = self.lightningTween2
-		self.lightningTween2 = nil
-	end
-	self.lightningColor = self.lightningColor+self.lightningColorSpeed*dt
-end
-
 function gameState:keypressed(key,scancode,isrepeat)
 	local id = self.keyControls[key]
 	if id then
-		if self.kittens[id] then
-			self.kittens[id]:turn()
+		if self.world.kittens[id] then
+			self.world.kittens[id]:turn()
 			self.touchControls[id].down = true
 		end
 	end
@@ -225,7 +161,7 @@ end
 function gameState:keyreleased(key,scancode,isrepeat)
 	local id = self.keyControls[key]
 	if id then
-		if self.kittens[id] then
+		if self.world.kittens[id] then
 			self.touchControls[id].down = false
 		end
 	end
@@ -233,7 +169,7 @@ end
 
 function gameState:playMusic()
 	if not _DEBUG then
-		Resources.Music["mapleLeafRag"]:play()
+		_music["mapleLeafRag"]:play()
 	end
 end
 
@@ -248,7 +184,7 @@ function gameState:touchpressed(id,x,y,dx,dy,pressure)
 			if btn.x1 <= x and btn.y1 <= y and btn.x2 >= x and btn.y2 >= y then
 				btn.touchid = id
 				btn.down = true
-				self.kittens[id]:turn()
+				self.world.kittens[id]:turn()
 				break
 			end
 		end

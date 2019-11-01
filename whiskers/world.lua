@@ -2,9 +2,17 @@
 local class = require("libraries.middleclass")
 local World = class("whiskers.World")
 
+local tween = require("libraries.tween")
+
 local Kitten = require("whiskers.kitten")
 local Pellet = require("whiskers.pellet")
 local Powerup = require("whiskers.powerup")
+
+local screenWidth, screenHeight = love.graphics.getDimensions()
+
+--Animation fields
+World.lightningDuration = 0.45
+World.lightningColorSpeed = 16
 
 function World:initialize(width, height, headless)
     self.b2world = love.physics.newWorld(0, 0) --A new physics world with 0 gravity.
@@ -16,7 +24,28 @@ function World:initialize(width, height, headless)
 	self.kittens = {} --The kittens in the world
 
     --Set the world callbacks
-    self.b2world:setCallbacks(self.beginContact, self.endContact, self.preSolve, self.postSolve)
+	self.b2world:setCallbacks(self.beginContact, self.endContact, self.preSolve, self.postSolve)
+	
+	--Initialize the resources if not running in headless mode
+	if not self.headless then self:initializeResources() end
+end
+
+function World:initializeResources()
+	self.headless = false
+
+	--The lightning animation
+	self.lightningImage = _image["bigWhiteLightning"]
+	self.lightningWidth, self.lightningHeight = self.lightningImage:getDimensions()
+	
+	self.lightningSmallScale = (screenWidth/6)/self.lightningWidth
+	self.lightningBigScale = (screenWidth/4)/self.lightningWidth
+	
+	self.lightningOX = self.lightningWidth/2
+	self.lightningX = screenWidth/2
+	
+	self.lightningStartY = -screenWidth/6
+	self.lightningMidY = screenHeight/2 - screenWidth/8
+	self.lightningEndY = screenHeight
 end
 
 --== Is Methods ==--
@@ -41,7 +70,21 @@ function World:getKittens() return self.kittens end
 
 --Show the lighting effect
 function World:showLightning()
-
+	self.lightningScale = self.lightningSmallScale
+	
+	self.lightningY = self.lightningStartY
+	
+	self.lightningColor = 1
+	
+	self.lightningTween = tween.new(self.lightningDuration/2,self,{
+		lightningY = self.lightningMidY,
+		lightningScale = self.lightningBigScale
+	},"outExpo")
+	
+	self.lightningTween2 = tween.new(self.lightningDuration/2,self,{
+		lightningY = self.lightningEndY,
+		lightningScale = self.lightningSmallScale
+	},"inExpo")
 end
 
 --Spawn a new kitten with a given player id {0, 1, 2, 4}
@@ -58,13 +101,13 @@ function World:spawnPellet(x, y)
 	
 	--Do 5 attempts to spawn a new pellet, and spawn careless at the last attempt
 	for i=5, 1, -1 do
-		x, y = love.math.random()*(self.worldWidth-worldPadding*2) + worldPadding, love.math.random()*(self.worldHeight-worldPadding*2) + worldPadding
+		x, y = love.math.random()*(self.width-worldPadding*2) + worldPadding, love.math.random()*(self.height-worldPadding*2) + worldPadding
 		
 		local spawn = true --Could we spawn the pellet ?
 		
 		--Test if there are nearby objects but not when on the last spawn attempt (instead spawn careless).
 		if i > 1 then
-			self.world:queryBoundingBox(x-spawnPadding,y-spawnPadding,x+spawnPadding,y+spawnPadding, function(fixture)
+			self.b2world:queryBoundingBox(x-spawnPadding,y-spawnPadding,x+spawnPadding,y+spawnPadding, function(fixture)
 				spawn = false --Something is nearby, don't spawn
 				return false --No more need to call for other nearby objects
 			end)
@@ -90,13 +133,13 @@ function World:spawnPowerup(x, y, ptype)
 	
 	--Do 5 attempts to spawn a new powerup, and spawn careless at the last attempt
 	for i=5, 1, -1 do
-		x, y = love.math.random()*(self.worldWidth-worldPadding*2) + worldPadding, love.math.random()*(self.worldHeight-worldPadding*2) + worldPadding
+		x, y = love.math.random()*(self.width-worldPadding*2) + worldPadding, love.math.random()*(self.height-worldPadding*2) + worldPadding
 		
 		local spawn = true --Could we spawn the powerup ?
 		
 		--Test if there are nearby objects but not when on the last spawn attempt (instead spawn careless).
 		if i > 1 then
-			self.world:queryBoundingBox(x-spawnPadding,y-spawnPadding,x+spawnPadding,y+spawnPadding, function(fixture)
+			self.b2world:queryBoundingBox(x-spawnPadding,y-spawnPadding,x+spawnPadding,y+spawnPadding, function(fixture)
 				spawn = false --Something is nearby, don't spawn
 				return false --No more need to call for other nearby objects
 			end)
@@ -123,6 +166,27 @@ function World:draw()
 	for k,v in ipairs(self.kittens) do v:drawMoustach() end
 end
 
+--Draw the lightning overlay
+function World:drawLightning()
+	if not self.lightningTween then return end
+	
+	local colorid = math.floor(self.lightningColor % #_colorPalette) +1
+	local r, g, b = unpack(_colorPalette[colorid])
+	
+	love.graphics.setColor(r, g, b, 125/255)
+	love.graphics.rectangle("fill", 0,0, screenWidth, screenHeight)
+	
+	love.graphics.setColor(1,1,1,1)
+	love.graphics.draw(self.lightningImage,
+		self.lightningX,
+		self.lightningY,
+		0,
+		self.lightningScale,
+		self.lightningScale,
+		self.lightningOX
+	)
+end
+
 --Update the world
 function World:update(dt)
 	self.b2world:update(dt) --Update the physics world
@@ -130,6 +194,16 @@ function World:update(dt)
 	for k,v in ipairs(self.kittens) do v:update(dt) end --Update the kittens
 	for k,v in ipairs(self.pellets) do v:update(dt) end --Update the pellets
 	for k,v in ipairs(self.powerups) do v:update(dt) end --Update the powerups
+
+	--Update the lightning overlay
+	if not self.headless and self.lightningTween then
+		local done = self.lightningTween:update(dt)
+		if done then
+			self.lightningTween = self.lightningTween2
+			self.lightningTween2 = nil
+		end
+		self.lightningColor = self.lightningColor+self.lightningColorSpeed*dt
+	end
 end
 
 --== Physics Events ==--
