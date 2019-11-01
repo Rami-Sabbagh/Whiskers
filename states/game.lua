@@ -2,6 +2,7 @@ local gamera = require("libraries.gamera")
 local gamestate = require("libraries.gamestate")
 local tween = require("libraries.tween")
 
+local World = require("whiskers.world")
 local Kitten = require("whiskers.kitten")
 local Pellet = require("whiskers.pellet")
 local Powerup = require("whiskers.powerup")
@@ -10,8 +11,8 @@ local screenWidth, screenHeight = love.graphics.getDimensions()
 
 local gameState = {}
 
-gameState.PTM = 32
-gameState.kittenScale = 20*gameState.PTM
+gameState.worldWidth = 20*_pixelsToMeterFactor --The width of the world, 20 meters
+gameState.worldHeight = gameState.worldWidth * (screenHeight / screenWidth) --The height of the world, depends on the screen ratio
 
 gameState.pelletStartTime = 15
 gameState.pelletTime = 10
@@ -19,11 +20,6 @@ gameState.pelletTime = 10
 gameState.powerupStartTime = 15
 gameState.powerupTime = 10
 gameState.powerupTestID = nil
-
-gameState.lightningShrinkScale = Pellet.growScale
-gameState.lightningGrowScale = 1.68
-
-gameState.bulletScale = 1.03
 
 gameState.lightningDuration = 0.45
 gameState.lightningColorSpeed = 16
@@ -84,24 +80,13 @@ function gameState:enter()
 	print("--==Game State Entered==--")
 	
 	love.graphics.setBackgroundColor(70/255,70/255,70/255, 1)
+
+	self.world = World(self.worldWidth, self.worldHeight)
 	
-	love.physics.setMeter(self.PTM)
+	self.camera = gamera.new(0,0, self.worldWidth, self.worldHeight)
+	self.camera:setScale(screenWidth/self.worldWidth)
 	
-	self.world = love.physics.newWorld(0, 0)
-	self.worldWidth = self.kittenScale
-	self.worldHeight = screenHeight/(screenWidth/self.kittenScale)
-	
-	self.winSize = 7.8 * self.PTM
-	
-	self.world:setCallbacks(self.beginContact, self.endContact, self.preSolve, self.postSolve)
-	
-	self.camera = gamera.new(0,0,self.worldWidth, self.worldHeight)
-	self.camera:setScale(screenWidth/self.kittenScale)
-	
-	self.kittens = {}
-	self.pellets = {}
-	self.powerups = {}
-	self:spawnKittens()
+	for i=1, 4 do self.world:spawnKitten(i) end
 	
 	self:playMusic()
 	
@@ -136,41 +121,13 @@ end
 function gameState:draw(vx,vy,vw,vh)
 	self.camera:enable()
 	
-	self:drawPellets()
-	self:drawPowerUps()
-	self:drawKittens()
+	self.world:draw()
 	
 	self.camera:disable()
 	
 	self:drawLightning()
 	
 	self:drawButtons()
-end
-
-function gameState:drawKittens()
-	for k,v in ipairs(self.kittens) do
-		if v.drawTraces then v:drawTraces() end
-	end
-	
-	for k,v in ipairs(self.kittens) do
-		if v.drawBody then v:drawBody() end
-	end
-	
-	for k,v in ipairs(self.kittens) do
-		if v.drawMoustach then v:drawMoustach() end
-	end
-end
-
-function gameState:drawPellets()
-	for k,v in ipairs(self.pellets) do
-		if v.draw then v:draw() end
-	end
-end
-
-function gameState:drawPowerUps()
-	for k,v in ipairs(self.powerups) do
-		if v.draw then v:draw() end
-	end
 end
 
 function gameState:drawLightning()
@@ -216,18 +173,14 @@ function gameState:drawButtons()
 end
 
 function gameState:update(dt)
-	
-	self.world:update(dt)
-	self:updateKittens(dt)
-	self:updatePellets(dt)
-	self:updatePowerUps(dt)
-	self:updateLightning(dt)
+	self.world:update(dt) --Update the whiskers world
 	
 	--Check scales
+	local kittens = self.world:getKittens()
 	for i=1,4 do
-		if self.kittens[i].size >= self.winSize then
+		if kittens[i].size >= Kitten.maximumSize then
 			for j=1,4 do
-				self.kittens[j].imageScale = self.kittens[j].size/self.kittens[j].imageSize
+				kittens[j].imageScale = kittens[j].size/kittens[j].imageSize
 			end
 			gamestate.switch(_states["score"])
 			return
@@ -238,32 +191,14 @@ function gameState:update(dt)
 	self.pelletTimer = self.pelletTimer - dt
 	if self.pelletTimer <= 0 then
 		self.pelletTimer = self.pelletTime
-		self:spawnPellet()
+		self.world:spawnPellet()
 	end
 	
 	--Powerup Timer
 	self.powerupTimer = self.powerupTimer - dt
 	if self.powerupTimer <= 0 then
 		self.powerupTimer = self.powerupTime
-		self:spawnPowerUp()
-	end
-end
-
-function gameState:updateKittens(dt)
-	for k,v in ipairs(self.kittens) do
-		if v.update then v:update(dt) end
-	end
-end
-
-function gameState:updatePellets(dt)
-	for k,v in ipairs(self.pellets) do
-		if v.update then v:update(dt) end
-	end
-end
-
-function gameState:updatePowerUps(dt)
-	for k,v in ipairs(self.powerups) do
-		if v.update then v:update(dt) end
+		self.world:spawnPowerup()
 	end
 end
 
@@ -296,78 +231,6 @@ function gameState:keyreleased(key,scancode,isrepeat)
 	end
 end
 
-function gameState:spawnKittens()
-	for i=1,4 do
-		self.kittens[i] = Kitten(self,i)
-	end
-end
-
-function gameState:spawnPellet()
-	local size = self.PTM/4
-	local extra = self.PTM*4
-	local pan = self.PTM
-	
-	for i=1,5 do
-		local x, y = love.math.random()*(self.worldWidth-pan*2) + pan, love.math.random()*(self.worldHeight-pan*2) + pan
-		
-		local flag = true
-		
-		if i < 5 then
-			local brad = (size+extra)/2
-			self.world:queryBoundingBox(x-brad,y-brad,x+brad,y+brad, function(fixture)
-				flag = false
-				return false
-			end)
-		end
-		
-		if flag then
-			
-			self:newPellet(x,y)
-			return
-			
-		end
-		
-		extra = extra*0.75
-	end
-end
-
-function gameState:spawnPowerUp()
-	local size = self.PTM*0.60
-	local extra = self.PTM*4
-	local pan = self.PTM
-	
-	for i=1,5 do
-		local x, y = love.math.random()*(self.worldWidth-pan*2) + pan, love.math.random()*(self.worldHeight-pan*2) + pan
-		
-		local flag = true
-		
-		if i < 5 then
-			local brad = (size+extra)/2
-			self.world:queryBoundingBox(x-brad,y-brad,x+brad,y+brad, function(fixture)
-				flag = false
-				return false
-			end)
-		end
-		
-		if flag then
-			
-			self:newPowerUp(x,y,self.powerupTestID)
-			return
-			
-		end
-		
-		extra = extra*0.75
-	end
-end
-
-function gameState:newPellet(x,y)
-	table.insert(self.pellets, Pellet(self,x,y))
-end
-
-function gameState:newPowerUp(x,y,id)
-	table.insert(self.powerups, Powerup(self,x,y,id))
-end
-
 function gameState:playMusic()
 	if not _DEBUG then
 		Resources.Music["mapleLeafRag"]:play()
@@ -376,7 +239,7 @@ end
 
 function gameState:mousepressed(x,y,button,istouch)
 	if istouch then return end
-	self:newPellet(self.camera:toWorld(x,y))
+	self.world:spawnPellet(self.camera:toWorld(x,y))
 end
 
 function gameState:touchpressed(id,x,y,dx,dy,pressure)
@@ -401,64 +264,6 @@ function gameState:touchreleased(id,x,y,dx,dy,pressure)
 				break
 			end
 		end
-	end
-end
-
---== Physics Events ==--
-
-function gameState.beginContact(fixtureA, fixtureB, contact)
-	local userdataA = fixtureA:getBody():getUserData()
-	
-	if type(userdataA) == "table" and userdataA.beginContact then
-		userdataA:beginContact(fixtureA, fixtureB, contact)
-	end
-	
-	local userdataB = fixtureB:getBody():getUserData()
-	
-	if type(userdataB) == "table" and userdataB.beginContact then
-		userdataB:beginContact(fixtureB, fixtureA, contact)
-	end
-end
-
-function gameState.endContact(fixtureA, fixtureB, contact)
-	local userdataA = fixtureA:getBody():getUserData()
-	
-	if type(userdataA) == "table" and userdataA.endContact then
-		userdataA:endContact(fixtureA, fixtureB, contact)
-	end
-	
-	local userdataB = fixtureB:getBody():getUserData()
-	
-	if type(userdataB) == "table" and userdataB.endContact then
-		userdataB:endContact(fixtureB, fixtureA, contact)
-	end
-end
-
-function gameState.preSolve(fixtureA, fixtureB, contact)
-	local userdataA = fixtureA:getBody():getUserData()
-	
-	if type(userdataA) == "table" and userdataA.preSolve then
-		userdataA:preSolve(fixtureA, fixtureB, contact)
-	end
-	
-	local userdataB = fixtureB:getBody():getUserData()
-	
-	if type(userdataB) == "table" and userdataB.preSolve then
-		userdataB:preSolve(fixtureB, fixtureA, contact)
-	end
-end
-
-function gameState.postSolve(fixtureA, fixtureB, contact)
-	local userdataA = fixtureA:getBody():getUserData()
-	
-	if type(userdataA) == "table" and userdataA.postSolve then
-		userdataA:postSolve(fixtureA, fixtureB, contact)
-	end
-	
-	local userdataB = fixtureB:getBody():getUserData()
-	
-	if type(userdataB) == "table" and userdataB.postSolve then
-		userdataB:postSolve(fixtureB, fixtureA, contact)
 	end
 end
 
