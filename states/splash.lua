@@ -34,7 +34,8 @@ function splashState:enter()
 		
 		--Item Loaded
 		function(kind, holder, key)
-			print("Loaded", math.floor((loader.loadedCount/loader.resourceCount)*100) .. "%",kind, key)
+			self.loadedPercentage = loader.loadedCount/loader.resourceCount
+			print("Loaded", math.floor((self.loadedPercentage)*100) .. "%", kind, key)
 			
 			if kind == "stream" then
 				holder[key]:setLooping(true)
@@ -51,6 +52,10 @@ function splashState:draw()
 	--Draw RamiLego4Game's logo
 	love.graphics.setColor(1,1,1,1)
 	love.graphics.draw(self.logoImage, self.logoX, self.logoY)
+	
+	--Loading bar
+	love.graphics.setColor(1,1,1, 0.5)
+	love.graphics.rectangle("fill", 0, 0, screenWidth*self.loadedPercentage, screenHeight*0.01)
 end
 
 function splashState:update(dt)
