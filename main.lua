@@ -1,7 +1,7 @@
 local gamestate = require("libraries.gamestate")
 local lovebird = require("libraries.lovebird")
 
-local splashState = require("states.splash")
+require("whiskers.globals") --Load the game's globals
 
 function love.load(args)
 	if args[#args] == "--debug" then
@@ -11,7 +11,7 @@ function love.load(args)
 	if _DEBUG then lovebird.init() end
 	
 	gamestate.registerEvents()
-	gamestate.switch(splashstate)
+	gamestate.switch(_states["splash"])
 end
 
 function love.update(dt)
