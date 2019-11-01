@@ -20,7 +20,7 @@ function Bullet:initialize(kitten)
 	
 	self.size = self.kitten.size * self.sizeRatio
 	
-	self.image = Resources.Image["eyeBullet2"]
+	self.image = _image["eyeBullet2"]
 	self.imageWidth, self.imageHeight = self.image:getDimensions()
 	self.imageScale = self.size/self.imageWidth
 	

@@ -10,14 +10,14 @@ Kitten.traceDuration = 0.5
 Kitten.scaleDuration = 0.5
 Kitten.turretDuration = 7
 
-Kitten.turretSFX = _sfx["sewingmachine"]
-
 function Kitten:initialize(game, id)
 	self.game = game
 	self.id = id
 	
 	self.traces = {}
 	self.traceTweens = {}
+
+	self.turretSFX = _sfx["sewingmachine"]
 	
 	self.bullets = {}
 	
@@ -28,16 +28,16 @@ function Kitten:initialize(game, id)
 	self.worldWidth, self.worldHeight = self.game.worldWidth, self.game.worldHeight
 	self.color = self.game.kittenColors[self.id]
 	
-	self.image = Resources.Image["francineWhite"]
+	self.image = _image["francineWhite"]
 	self.imageSize = self.image:getDimensions()
 	self.imageScale = self.size/self.imageSize
 	
-	self.traceImage = Resources.Image["directionArrow"]
+	self.traceImage = _image["directionArrow"]
 	self.traceSize = self.traceImage:getDimensions()
 	
 	self.moustachX, self.moustachY = 307+14-self.imageSize/2, 139+28-self.imageSize/2
 	self.moustachID = love.math.random(1,50)
-	self.moustachImage = Resources.Image["Layer-"..self.moustachID]
+	self.moustachImage = _image["Layer-"..self.moustachID]
 	self.moustachWidth, self.moustachHeight = self.moustachImage:getDimensions()
 	self.moustachCenterX = self.moustachWidth/2
 	
@@ -253,8 +253,8 @@ function Kitten:gotLightning()
 	end
 	
 	self.game:showLightning()
-	Resources.SFX["sirenWhistle"]:stop()
-	Resources.SFX["sirenWhistle"]:play()
+	_sfx["sirenWhistle"]:stop()
+	_sfx["sirenWhistle"]:play()
 end
 
 function Kitten:gotTurret()

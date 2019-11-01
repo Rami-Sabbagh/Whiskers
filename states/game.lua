@@ -236,7 +236,7 @@ function gameState:update(dt)
 			for j=1,4 do
 				self.kittens[j].imageScale = self.kittens[j].size/self.kittens[j].imageSize
 			end
-			gamestate.switch(ScoreState)
+			gamestate.switch(_states["score"])
 			return
 		end
 	end
@@ -372,7 +372,7 @@ function gameState:newPellet(x,y)
 end
 
 function gameState:newPowerUp(x,y,id)
-	table.insert(self.powerups, PowerUp(self,x,y,id))
+	table.insert(self.powerups, Powerup(self,x,y,id))
 end
 
 function gameState:playMusic()

@@ -23,13 +23,14 @@ function splashState:enter()
 	love.graphics.setBackgroundColor(70/255,70/255,70/255,1)
 	
 	self.finishedLoading = false
+	self.loadedPercentage = 0 --The loading percentage
 	
 	loader.start(
 		--Finished Loading
 		function()
 			print("Finished Loading")
 			self.finishedLoading = true
-			gamestate.switch( require("states.game") )
+			gamestate.switch(_states["game"])
 		end,
 		
 		--Item Loaded
@@ -113,7 +114,7 @@ function splashState:queueMusic(path)
 		if love.filesystem.getInfo(itemPath, "directory") then
 			self:queueMusic(itemPath.."/")
 		else
-			local _, fileName, fileExtension = self:splitFilePath(ItemPath)
+			local _, fileName, fileExtension = self:splitFilePath(itemPath)
 			
 			if fileExtension == "mp3" then
 				loader.newSource(_music, fileName, itemPath, "stream")
