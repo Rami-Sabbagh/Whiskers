@@ -7,6 +7,7 @@ local Bullet = require("whiskers.bullet")
 
 --Game fields
 Kitten.maximumSize = 7.8 * _pixelsToMeterFactor --A Kitten has to be 7.8 meters large to win (they start with the size of 1 meter)
+Kitten.names = {"clarence", "helen", "johnr", "margie"}
 
 --Physics fields
 Kitten.size = _pixelsToMeterFactor --A kitten is 1 meters large
@@ -56,9 +57,10 @@ function Kitten:initializeResources()
 	self.turretSFX = _sfx["sewingmachine"]
 
 	self.color = _colorPalette[self.playerID]
+	self.name = self.names[self.playerID]
 
 	self.image = _image["francineWhite"]
-	self.imageSize = self.image:getDimensions()
+	self.imageSize = self.image:getWidth()
 	self.imageScale = self.size/self.imageSize
 
 	self.moustachX, self.moustachY = 307+14-self.imageSize/2, 139+28-self.imageSize/2
@@ -72,6 +74,11 @@ function Kitten:initializeResources()
 	self.traceImage = _image["directionArrow"]
 	self.traceSize = self.traceImage:getDimensions()
 end
+
+--== Getter methods ==--
+
+function Kitten:getName() return self.name end
+function Kitten:getPlayerID() return self.playerID end
 
 --== Kitten size control methods ==--
 

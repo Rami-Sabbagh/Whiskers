@@ -11,15 +11,17 @@ local screenWidth, screenHeight = love.graphics.getDimensions()
 
 local gameState = {}
 
+--The world dimensions
 gameState.worldWidth = 20*_pixelsToMeterFactor --The width of the world, 20 meters
 gameState.worldHeight = gameState.worldWidth * (screenHeight / screenWidth) --The height of the world, depends on the screen ratio
 
-gameState.pelletStartTime = 15
-gameState.pelletTime = 10
+--The pellet spawner timer
+gameState.pelletSpawnerInitialTimer = 15
+gameState.pelletSpawnerTimer = 10
 
-gameState.powerupStartTime = 15
-gameState.powerupTime = 10
-gameState.powerupTestID = nil
+--The powerup spawner timer
+gameState.powerupSpawnerInitialTimer = 15
+gameState.powerupSpawnerTimer = 10
 
 gameState.keyControls = {
 	z = 1,
@@ -74,8 +76,8 @@ function gameState:enter()
 	
 	self:playMusic()
 	
-	self.pelletTimer = self.pelletStartTime
-	self.powerupTimer = self.powerupStartTime
+	self.pelletSpawnerTimerr = self.pelletSpawnerInitialTimer
+	self.powerupSpawnerTimerr = self.powerupSpawnerInitialTimer
 	
 	self.lightningTween, self.lightningTween2 = nil, nil
 end
@@ -125,25 +127,27 @@ function gameState:update(dt)
 	local kittens = self.world:getKittens()
 	for i=1,4 do
 		if kittens[i].size >= Kitten.maximumSize then
+			local kittensList = {}
 			for j=1,4 do
-				kittens[j].imageScale = kittens[j].size/kittens[j].imageSize
+				kittens[j].imageScale = kittens[j].size/kittens[j].imageSize --Make sure the image scale is the final value, because of tweens
+				kittensList[j] = kittens[j]
 			end
-			gamestate.switch(_states["score"])
+			gamestate.switch(_states["score"], kittensList)
 			return
 		end
 	end
 	
 	--Pellet Timer
-	self.pelletTimer = self.pelletTimer - dt
-	if self.pelletTimer <= 0 then
-		self.pelletTimer = self.pelletTime
+	self.pelletSpawnerTimerr = self.pelletSpawnerTimerr - dt
+	if self.pelletSpawnerTimerr <= 0 then
+		self.pelletSpawnerTimerr = self.pelletSpawnerTimer
 		self.world:spawnPellet()
 	end
 	
 	--Powerup Timer
-	self.powerupTimer = self.powerupTimer - dt
-	if self.powerupTimer <= 0 then
-		self.powerupTimer = self.powerupTime
+	self.powerupSpawnerTimerr = self.powerupSpawnerTimerr - dt
+	if self.powerupSpawnerTimerr <= 0 then
+		self.powerupSpawnerTimerr = self.powerupSpawnerTimer
 		self.world:spawnPowerup()
 	end
 end
